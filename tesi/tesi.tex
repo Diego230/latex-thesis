@@ -1,394 +1,872 @@
-\documentclass[12pt,a4paper,twoside]{book}
-
+\documentclass[12pt,a4paper]{report}
 
 \usepackage[utf8]{inputenc}
-\usepackage[a4paper,inner=3.5cm,outer=2.5cm]{geometry}
-
-\usepackage[titletoc,title,toc,page]{appendix}
-\usepackage{verbatim}
-\usepackage{placeins}
-\usepackage{listings}
-\usepackage{hyperref}
+\usepackage[T1]{fontenc}
 \usepackage[italian]{babel}
-\usepackage{tikz}
-\usepackage{parskip}
-
 \usepackage{graphicx}
-\usepackage{blindtext}
-\usepackage{chngcntr}
-\counterwithin{table}{chapter}
-
-\usepackage{newlfont}
-\usepackage{fancyhdr}
-\usepackage{indentfirst}
-\usepackage[utf8]{inputenc}
+\graphicspath{{immagini tirocinio_tesi/}{./}}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{caption}
 \usepackage{float}
+\usepackage{microtype}
 \usepackage{hyperref}
-\usepackage[capitalize,noabbrev]{cleveref}
-\usepackage{soul}
-\usepackage[font=footnotesize,labelfont=bf]{caption}
 
-\usepackage{multirow}
-\usepackage{hyphenat}
-\hyphenation{mate-mati-ca recu-perare}
+\geometry{margin=3cm}
+\emergencystretch=3em
+\hypersetup{
+    hidelinks,
+    pdfencoding=auto
+}
 
-\usepackage{lscape} 
+% Inserisce l'immagine quando disponibile; in caso contrario mostra un
+% segnaposto, evitando che la compilazione si interrompa.
+\newcommand{\safeincludegraphics}[2][]{%
+    \IfFileExists{#2}{%
+        \includegraphics[#1]{#2}%
+    }{%
+        \IfFileExists{immagini tirocinio_tesi/#2}{%
+            \includegraphics[#1]{immagini tirocinio_tesi/#2}%
+        }{%
+            \fbox{%
+                \begin{minipage}[c][5cm][c]{0.82\textwidth}
+                    \centering
+                    \textbf{Immagine non disponibile}\\[0.3em]
+                    \ttfamily\small\detokenize{#2}
+                \end{minipage}%
+            }%
+        }%
+    }%
+}
 
-\usepackage{natbib}
-\bibliographystyle{alpha}
-\setcitestyle{super,open={[},close={]}}
+\definecolor{codebg}{rgb}{0.96,0.96,0.96}
+\definecolor{codegreen}{rgb}{0,0.5,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
 
-\newcommand{\rom}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
+\lstdefinestyle{pythonstyle}{
+    backgroundcolor=\color{codebg},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    stringstyle=\color{codepurple},
+    numberstyle=\tiny\color{codegray},
+    basicstyle=\ttfamily\footnotesize,
+    columns=fullflexible,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    language=Python,
+    frame=single
+}
+\lstset{style=pythonstyle}
 
-\usepackage{pdfpages}
+\title{
+    \Large Anomaly Detection di Minacce Informatiche in Impianti Industriali Fischertechnik mediante Continual Learning \\
+    \vspace{0.5cm}
+    \normalsize Corso di Laurea Triennale in Ingegneria Informatica
+}
+\author{}
+\date{}
 
 \begin{document}
-% Per spostare i vari elementi più su o più giù gioca con i valori di vspace che ci sono tra uno e l'altro
-\pagestyle{empty}
-\newgeometry{
-    left=20mm,
-    right=20mm,
-    top=20mm,
-    bottom=20mm
-}
 
-\begin{titlepage}
+\maketitle
 
-\begin{center}
+\begin{abstract}
+\noindent
+Il presente lavoro di tesi affronta il problema del rilevamento di minacce informatiche (\emph{anomaly detection}) all'interno di impianti industriali di tipo Industrial Internet of Things (IIoT), con particolare riferimento a un impianto didattico Fischertechnik utilizzato come banco di prova. Il problema centrale affrontato riguarda l'obsolescenza dei modelli di Machine Learning classici, addestrati su dataset statici, quando applicati a flussi di dati industriali che evolvono nel tempo (\emph{concept drift}). Per superare tale limite si è adottato un approccio di \emph{Continual Learning} (CL), che consente l'apprendimento incrementale da flussi di dati senza incorrere nel fenomeno del \emph{catastrophic forgetting}, ovvero la perdita della conoscenza pregressa a fronte dell'acquisizione di nuova informazione.
 
-% marchio di ateneo
-\includegraphics[width=6.5cm,height=4.7cm]{img/marchio-di-ateneo.png}
+Il lavoro è stato sviluppato progressivamente attraverso più iterazioni sperimentali: da un primo classificatore basato su Random Forest, si è passati alla costruzione di una rete neurale \emph{Multi-Layer Perceptron} (MLP) con \emph{entity embedding} per le feature categoriche a più alta cardinalità (porte di rete), addestrata in modalità incrementale tramite il framework \texttt{Avalanche} e una strategia di \emph{Experience Replay}. È stata inoltre realizzata una pipeline di acquisizione e inferenza in tempo reale basata su \texttt{Scapy}, coerente con lo schema di feature del dataset di addestramento (\emph{X-IIoTID}), e un modulo di analisi dell'importanza delle feature basato su Random Forest per la riduzione della dimensionalità e il controllo dell'overfitting. I risultati sperimentali, monitorati tramite una dashboard statistica dedicata, mostrano un'accuratezza media prossima al 99\% e una comprovata resilienza del modello, grazie al meccanismo di Replay Buffer, a un episodio di corruzione delle etichette nel dataset di input, a conferma dell'efficacia dell'approccio proposto.
+\end{abstract}
 
-\vspace{10mm}
-
-% \large is 12pt
-{\large{\bf{Dipartimento di }}} 
-
-\vspace{5mm}
-
-% \Large is 14.4pt
-{\Large{\bf{Corso di Laurea in }}}
-
-\vspace{15mm}
-
-{\Huge{\bf Titolo della tesi }}\\
-\vspace{3mm}
-{\Huge{\bf anche su più}}\\
-\vspace{3mm}
-{\Huge{\bf righe }}\\
-\vspace{3mm}
-
-\end{center}
-
-\vspace{10mm}
-
-\begin{minipage}[t]{0.40\textwidth}
-{\Large{\bf Relatore: \\ Chiar.mo Prof.\\ Nome Cognome}}
-
-\vspace{3mm}
-
-{\Large{\bf Correlatore: \\ Chiar.mo Prof.\\ Nome Cognome}}
-\end{minipage}
-\hfill
-\begin{minipage}[t]{0.40\textwidth}\raggedleft
-{\Large{\bf Presentata da: \\ Nome Cognome}}
-\end{minipage}
-
-\vspace{30mm}
-
-\rule[0.5cm]{15.8cm}{0.6mm}
-
-\begin{center}
-{\large{\bf Sessione mese anno \\}}
-{\large{\bf Anno Accademico 20xx/20xx\\}}
-\end{center}
-
-\end{titlepage}
-
-\restoregeometry
-\newpage
-\begin{center}
-    (DA FARE ALLA FINE)\\
-    5 parole chiave per caratterizzare il contenuto della dissertazione:\\ (se non ti piacciono così sparse puoi anche semplicamente scriverle su una riga sola)
-\end{center}
-
-% https://tex.stackexchange.com/questions/26538/words-scattered-randomly-in-on-coverpage
-\begin{tikzpicture}[overlay,remember picture,shift=(current page.center)]
-\pgfmathsetseed{3}
-
-
-\foreach [count=\count] \word in {Parola 1, parola 2, parola 3, parola 4, parola 5} {
-\node [
-    xshift={(mod(\count,3)-1)*(\paperwidth/4)},
-    yshift={(mod(\count,7)-3)*(\paperwidth/6)},
-    xshift=rand*4cm,
-    yshift=rand*2cm,
-    % rotate=rand*35,
-    % opacity=rnd*0.5+0.125,
-    font=\large] {\word};
-}
-\end{tikzpicture}
-\newpage
-
-\topmargin=6.5cm
-\begin{flushright}
-\emph{
-\LARGE{La dedica}\\\vspace{2mm}
-\LARGE{anche quella se vuoi}\\\vspace{3mm} 
-\LARGE{su più righe} 
-}
-\end{flushright}
-\newpage~\newpage
-\pagenumbering{gobble}
-\chapter*{Abstract}
-Abstract qui (ti consiglio di farlo alla fine)
-
-\topmargin=-1cm
 \tableofcontents
-\thispagestyle{empty}
-\listoftables
-\thispagestyle{empty}
-\listoffigures
-\thispagestyle{empty}
-\newpage~\newpage
 
+% =====================================================================
+\chapter{Introduzione}
+% =====================================================================
 
-\pagenumbering{arabic}
-\setcounter{chapter}{-1}
-\raggedbottom
-\chapter{INTRODUZIONE} \label{chap:intro}
-\pagestyle{plain}
-\setcounter{page}{1}
+\section{Contesto e motivazioni}
 
-(Io l'introduzione l'ho scritta alla fine)\\
-bla bla bla
-\section{elenchi}
-\subsection{Elenchi puntati}
+La diffusione dei paradigmi Industrial Internet of Things (IIoT) ha esteso in modo significativo la superficie di attacco dei sistemi di controllo industriale (Industrial Control Systems, ICS), storicamente progettati per operare in reti isolate e con requisiti di sicurezza informatica secondari rispetto a quelli di affidabilità e continuità operativa. L'interconnessione crescente tra i livelli di campo (sensori, attuatori, PLC) e i livelli enterprise ha reso questi impianti bersaglio di minacce informatiche sempre più sofisticate, capaci di alterare processi fisici con conseguenze potenzialmente critiche.
+
+Il presente lavoro si colloca in tale contesto e nasce da un'attività di tirocinio il cui obiettivo è la progettazione e l'implementazione di un sistema di monitoraggio intelligente, basato su tecniche di Continual Learning, in grado di apprendere in modo incrementale da flussi di dati industriali reali ricavati da un impianto didattico Fischertechnik, evitando il fenomeno del \emph{catastrophic forgetting} e mirando al rilevamento di minacce informatiche.
+
+Un impianto Fischertechnik, pur essendo un modello in scala ridotta rispetto a un impianto industriale reale, replica in laboratorio la logica di funzionamento e i protocolli di comunicazione tipici di un ambiente IIoT (traffico di rete tra dispositivi, comandi verso registri di controllo, scambio di pacchetti secondo protocolli industriali), risultando pertanto un banco di prova adeguato per la validazione di tecniche di anomaly detection.
+
+\section{Il problema della staticità dei modelli di Machine Learning classici}
+
+Il flusso di lavoro tradizionale nell'applicazione del Machine Learning segue uno schema sostanzialmente statico, articolato nelle seguenti fasi: acquisizione di una quantità consistente di dati dal mondo reale; suddivisione dei dati acquisiti in insiemi di training e di test; addestramento del modello sui dati di training; valutazione delle prestazioni sui dati di test; infine, in caso di prestazioni soddisfacenti, il rilascio (\emph{deployment}) del modello nell'ambiente di produzione.
+
+Tale schema presenta un limite strutturale quando applicato a contesti in cui i dati cambiano nel tempo: se la distribuzione dei dati in ingresso evolve rispetto a quella osservata in fase di addestramento -- fenomeno noto come \emph{concept drift} -- il modello addestrato in modo statico perde progressivamente di efficacia. L'unica soluzione strutturale a questo problema consiste nell'adottare un paradigma di Continual Learning, che consenta l'addestramento continuo del modello. In assenza di opportuni accorgimenti, tuttavia, l'addestramento continuo espone il modello al rischio di \emph{catastrophic forgetting}, ossia la perdita, spesso improvvisa e completa, della capacità di riconoscere pattern appresi in precedenza, a fronte dell'acquisizione di nuova conoscenza.
+
+Il paradigma di Continual Learning risolve inoltre un secondo limite del flusso di lavoro classico, relativo alla natura intrinsecamente \emph{offline} della fase di addestramento: un modello in addestramento non può essere contemporaneamente operativo in produzione, mentre un sistema di CL è per costruzione pensato per operare in un regime di apprendimento e inferenza concorrenti.
+
+\section{Obiettivi del lavoro di tesi}
+
+Coerentemente con gli obiettivi dell'attività di tirocinio, il presente lavoro persegue i seguenti obiettivi specifici:
+
 \begin{itemize}
-    \item bla
-    \begin{itemize}
-        \item sub-bla
-    \end{itemize}
-    \item bla
+    \item lo studio della letteratura recente relativa a framework di Continual Learning applicati alla cybersecurity industriale, con l'identificazione delle strategie più pertinenti al caso d'uso (in particolare gli approcci \emph{replay-based} e \emph{regularization-based});
+    \item lo studio del dataset industriale disponibile e dei protocolli di comunicazione utilizzati dal sistema Fischertechnik, propedeutico alla progettazione di una corretta pipeline di feature engineering;
+    \item la progettazione e implementazione di una pipeline per l'acquisizione di dati in tempo reale dal traffico di rete dell'impianto, con relativo feeding al modello di anomaly detection;
+    \item l'analisi delle prestazioni del modello ottenuto e della sua capacità di adattamento a nuovi pattern di traffico, incluso lo studio della resilienza a condizioni di rumore e corruzione nei dati di addestramento.
 \end{itemize}
 
-\subsection{Elenchi numerati}
-\begin{enumerate}
-    \item bla1
-    \begin{enumerate}
-        \item sub bla 1
-        \item sub bla 2
-    \end{enumerate}
-    \item bla 2
-\end{enumerate}
+\section{Struttura della tesi}
 
-\subsection{Mix}
+Il resto della tesi è organizzato come segue. Il Capitolo 2 introduce il background tecnologico necessario alla comprensione del lavoro, richiamando gli elementi essenziali di sicurezza nei sistemi IIoT/ICS e i principi fondamentali del Continual Learning. Il Capitolo 3 descrive l'analisi e la preparazione dei dataset utilizzati, incluso il processo di selezione delle feature. Il Capitolo 4 costituisce il nucleo tecnico della tesi e descrive in dettaglio l'architettura del sistema realizzato, articolata nei quattro moduli sviluppati: addestramento incrementale, acquisizione e inferenza live, analisi delle feature, visualizzazione dei risultati. Il Capitolo 5 presenta la sperimentazione condotta e discute criticamente i risultati ottenuti. Il Capitolo 6, infine, trae le conclusioni del lavoro e delinea i possibili sviluppi futuri.
+
+% =====================================================================
+\chapter{Background Tecnologico}
+% =====================================================================
+
+\section{Cybersecurity nei sistemi IIoT/ICS}
+
+I sistemi di controllo industriale sono tipicamente descritti secondo il modello di riferimento Purdue Enterprise Reference Architecture, che organizza l'infrastruttura in livelli gerarchici, dai sistemi enterprise (livelli 4-5) fino ai dispositivi di campo (livelli 0-1), passando per una zona demilitarizzata (DMZ, livello 3.5) che ha la funzione di isolare il dominio IT dal dominio Operational Technology (OT). Ciascun livello espone una superficie di attacco differente: ai livelli enterprise gli attaccanti tendono a sfruttare vulnerabilità applicative per poi tentare un movimento laterale verso il basso, approfittando di segmentazioni di rete deboli; a livello di DMZ le vulnerabilità più critiche riguardano configurazioni errate dei firewall; ai livelli di controllo e supervisione (SCADA, HMI, PLC) le minacce principali includono l'esecuzione di codice da remoto, l'alterazione della logica di processo e l'iniezione di comandi non autorizzati sfruttando debolezze di protocolli quali Modbus o MQTT.
+
+I livelli più bassi, relativi ai dispositivi di campo e al processo fisico, sono quelli in cui il presente lavoro si colloca prevalentemente, poiché è a questo livello che avviene l'osservazione del traffico di rete tra i componenti dell'impianto Fischertechnik. Le minacce tipiche di questo livello comprendono lo spoofing e il jamming dei sensori, la scrittura non autorizzata di registri (\emph{malicious register writes}), gli attacchi di tipo \emph{replay} -- in cui un pacchetto legittimo precedentemente osservato viene re-iniettato nella rete per indurre un comportamento errato del controllore -- la scansione sistematica dello spazio di indirizzamento dei registri a scopo ricognitivo, e gli attacchi di \emph{Denial of Service} volti a saturare la rete o esaurire le risorse computazionali dei controllori.
+
+Nella definizione del modello di minaccia adottato si assume un attaccante di tipo Dolev-Yao, in grado di osservare, modificare, iniettare, cancellare o ritardare tutti i messaggi che transitano sulla rete pubblica, ma vincolato dall'ipotesi di crittografia perfetta: l'attaccante non è in grado di decifrare un messaggio cifrato o falsificare una firma digitale senza disporre delle chiavi corrispondenti, e pertanto non può condurre attacchi crittografici quali la forzatura bruta delle chiavi private. Coerentemente con la letteratura di riferimento in ambito IIoT, si assume inoltre che l'attaccante possa operare a partire dal livello 1 della Purdue Reference Architecture o superiore.
+
+Dal punto di vista dei protocolli di comunicazione, l'impianto Fischertechnik e i dataset industriali analizzati fanno uso, tra gli altri, del protocollo Modbus, che disciplina le operazioni di lettura e scrittura sui registri dei controllori (PLC). Nel corso del lavoro sperimentale si è fatto inoltre uso di dataset in formato ARFF, un formato di notazione alternativo per la rappresentazione dei comandi che transitano nell'impianto, in cui sono esplicitati sia il tipo di azione compiuta da ciascuna componente dell'impianto sia il registro del PLC a cui essa fa riferimento.
+
+\section{Continual Learning}
+
+Il Continual Learning (CL) è quel ramo del Machine Learning che si occupa di conferire ai modelli la capacità di apprendere in modo continuativo nuova informazione senza dimenticare quella pregressa. Come discusso nella Sezione 1.2, tale capacità è necessaria ogniqualvolta la distribuzione dei dati osservati non sia stazionaria nel tempo, condizione che caratterizza tipicamente il traffico di rete di un impianto industriale soggetto a normali variazioni operative e, potenzialmente, ad attacchi non presenti nei dati di addestramento iniziale.
+
+Il problema centrale del Continual Learning è il \emph{catastrophic forgetting}: quando un modello neurale viene addestrato sequenzialmente su nuovi task senza accesso ai dati precedenti, i pesi condivisi nello spazio dei parametri vengono sovrascritti dagli aggiornamenti relativi al task corrente, causando una perdita anche drastica delle prestazioni sui task precedenti. Il problema è governato da un compromesso, noto in letteratura come \emph{stability-plasticity trade-off}: un'elevata plasticità consente un rapido apprendimento della nuova informazione ma espone al rischio di sovrascrivere le rappresentazioni pregresse, mentre un'eccessiva stabilità preserva la conoscenza acquisita a discapito della capacità di adattamento. A titolo di riferimento empirico per l'interpretazione dei risultati sperimentali, in letteratura si osserva che l'addestramento per singolo task (\emph{single-task training}) costituisce il limite superiore di prestazione ottenibile su un task specifico, mentre l'addestramento congiunto su tutti i task (\emph{multitask joint training}), che presuppone la disponibilità simultanea di tutti i dati, rappresenta il limite superiore di prestazione media su tutti i task.
+
+Le strategie proposte in letteratura per mitigare il catastrophic forgetting si possono ricondurre a due famiglie principali, entrambe rilevanti per le scelte implementative descritte nel Capitolo 4:
+
 \begin{itemize}
-    \item bla
-    \begin{enumerate}
-        \item sub bla 1
-    \end{enumerate}
-    \item bla
+    \item \textbf{Approcci basati su regolarizzazione} (\emph{regularization-based}): introducono un termine di penalità nella funzione di costo che limita la modifica dei parametri ritenuti importanti per i task precedenti. Il metodo più noto di questa famiglia è l'\emph{Elastic Weight Consolidation} (EWC), che stima l'importanza di ciascun parametro tramite l'informazione di Fisher e penalizza le variazioni significative dei parametri a più alta importanza nel corso dell'addestramento su nuovi task.
+    \item \textbf{Approcci basati su replay} (\emph{replay-based}): mantengono un buffer di memoria contenente un sottoinsieme rappresentativo di esempi osservati in precedenza, che vengono ripresentati al modello (\emph{rehearsal}) insieme ai nuovi dati durante l'addestramento, in modo da ancorare gli aggiornamenti dei pesi alla conoscenza pregressa. Varianti più sofisticate di questo approccio, quali il \emph{Dark Experience Replay}, arricchiscono il meccanismo di rehearsal con un termine di distillazione della conoscenza (\emph{knowledge distillation}) calcolato sui logit prodotti dal modello nelle versioni precedenti.
 \end{itemize}
 
-\begin{enumerate}
-    \item bla 1
-    \begin{itemize}
-        \item sub bla
-    \end{itemize}
-    \item bla 2
-\end{enumerate}
+Come discusso nel Capitolo 4, il sistema realizzato nel presente lavoro adotta un approccio di tipo replay-based, tramite un buffer di memoria gestito dal framework Avalanche, ritenuto preferibile rispetto agli approcci di regolarizzazione puri per la maggiore semplicità implementativa e per l'efficacia empirica dimostrata nel corso della sperimentazione.
 
-\section{Font}
-\textbf{bla bla bla}\\
-\textit{Ancora bla bla bla}\\
-\texttt{bla bla ma in un'altra riga}
+A titolo di confronto metodologico, la letteratura di riferimento per il progetto propone anche un modello di baseline basato su alberi decisionali, denominato \emph{Continual Random Forest} (CRF), che estende un Random Forest tradizionale con un buffer di replay contenente gli esempi più informativi osservati in passato, e un meccanismo di \emph{active learning} che seleziona nuovi campioni per il riaddestramento quando la confidenza di predizione del modello scende al di sotto di una soglia di maggioranza del 90\% (strategia \emph{vote-count-based}). Il CRF, pur non essendo stato implementato nel presente lavoro, costituisce un utile termine di paragone concettuale, poiché dimostra come il paradigma del Continual Learning non sia vincolato a un'unica famiglia di modelli, ma sia generalizzabile sia a modelli ad albero sia a reti neurali.
 
-\subsection{Sottosezione 1 - parskip}
-Grazie al package parskip se vai a capo nel .tex lasciando una riga
+\section{Il framework Avalanche}
 
-ti mette un po' di spazio anche nel pdf.\\
-Attenzione però che ogni tanto questa feature fa lasciare troppo spazio tra testo e immagini / tabelle, se capita prova a togliere un po' di righe vuote. \\
-Senza questo pacchetto, una doppia new line (\texttt{$\backslash n\backslash n$}) crea un nuovo paragrafo, la cui prima riga viene leggermente indentata (un comportamento indesiderato se vieni da altri strumenti di stesura). Eventualmente, si può usare per allungare di qualche pagina alla tesi, evitando di abusarne.
-\subsection{Sottosezione 2 - capitoli}
-I capitoli iniziano sempre in una pagina dispari, quindi a volte vedrai delle pagine bianche tra uno e l'altro
-\subsubsection{Sottosottosezione 1} \label{subsub:bla}
-bla bla bla
+L'implementazione della strategia di Continual Learning descritta nel Capitolo 4 si basa sul framework open source \texttt{Avalanche}, sviluppato specificamente per la ricerca in ambito Continual Learning con PyTorch. Avalanche struttura un esperimento di CL attorno a tre componenti principali: un \emph{benchmark}, che organizza i dati in uno stream di esperienze (\emph{experiences}), tipicamente rappresentate come tensori PyTorch; un \emph{modello}, nel caso specifico una rete neurale, poiché le tecniche di Continual Learning operano prevalentemente sui pesi di reti neurali; e una \emph{strategia}, che definisce le modalità di addestramento e le tecniche adottate per contrastare il catastrophic forgetting. Tra le strategie disponibili nel framework, oltre alla strategia \emph{Naive} (priva di meccanismi di protezione dalla dimenticanza) e alla già citata EWC, il presente lavoro adotta la strategia \emph{Replay}, tramite il \texttt{ReplayPlugin} descritto nella Sezione 4.2.4, in combinazione con il \texttt{SupervisedTemplate}, che consente un controllo granulare sulla logica di addestramento disaccoppiandola dalla gestione della memoria.
 
-\chapter{Dopo l'introduzione}
-qua scrivi qualcosa
-\section{Immagini}
-Quando fai begin figure, ricordati di mettere tra quadre un modificatore di posizione: H significa esattamente nel punto dove si trova l'immagine nel file .tex e ti consiglio di usare quello, se no ci sono ad esempio t (top) e b (bottom).
+% =====================================================================
+\chapter{Analisi e Preparazione del Dataset}
+% =====================================================================
+
+\section{Panoramica dei dataset utilizzati}
+
+Il percorso sperimentale che ha condotto alla pipeline finale descritta nel Capitolo 4 ha comportato la valutazione progressiva di più dataset, ciascuno caratterizzato da una diversa rappresentazione del traffico industriale. In una prima fase è stato utilizzato un dataset di traffico di rete grezzo, sul quale un primo classificatore Random Forest ha mostrato evidenti fenomeni di overfitting e catastrophic forgetting, riconducibili sia alla natura del dataset sia a uno sbilanciamento non adeguatamente compensato tra traffico benigno e maligno. In una seconda fase si è fatto uso di un dataset in formato ARFF (fonte: repository di dataset ICS della Tommy Morris UAH), caratterizzato dalla presenza di comandi Modbus espliciti, che ha richiesto una revisione della logica di addestramento. Successivamente è stato valutato il dataset HAI (\emph{Hardware-in-the-loop Augmented ICS}), disponibile su Kaggle, costituito da misure fisiche di sensori e attuatori anziché da traffico di rete, che ha richiesto un'operazione di merge e allineamento temporale tra i file di label e i test set disponibili.
+
+La versione finale della pipeline, descritta nel Capitolo 4 e oggetto della sperimentazione riportata nel Capitolo 5, è basata sul dataset \textbf{X-IIoTID} (\texttt{X-IIoTID\_dataset\_2.csv}), un dataset di traffico di rete industriale etichettato, scelto per la maggiore varianza e ricchezza di feature semantiche rispetto ai dataset precedentemente valutati.
 
 \begin{figure}[H]
-    \centering
-    % Se metti solo una delle due dimensioni, l'altra scala in automatico
-    \includegraphics[height = 6cm, width=8cm]{img/frog.jpg}
-    \caption{Caption (questo viene scritto nell'indice delle figure)}
-    % La label ci vuole sempre e te la inventi tu: serve per riferirsi alle immagini successivamente
-    \label{fig:frog}
+\centering
+\safeincludegraphics[width=0.85\textwidth]{Analisi_Scientifica_Dataset.png}
+\caption{Quadro riassuntivo dei dataset valutati nel corso del percorso sperimentale (traffico Fischertechnik reale, ARFF/Modbus, HAI, X-IIoTID), con le rispettive caratteristiche principali.}
+\label{fig:analisi_dataset}
 \end{figure}
 
-\section{tabelle}
-\subsection{Tabella semplice}
-Anche qui nota H tra quadre, la caption e la label
+\section{Struttura del dataset X-IIoTID}
 
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|c|c|}
-    \hline
-        \textbf{Pratiche agili} & \textbf{Studenti}  \\ \hline
-        Sprint planning & 73  \\ \hline
-        Pair programming & 73  \\ \hline
-        Retrospettiva & 48  \\ \hline
-    \end{tabular}
-    \caption{Tabella semplice (anche questo scritto nell'indice delle tabelle)}
-    \label{tab:simple}
-\end{table}
+Il dataset X-IIoTID espone, per ciascun record di traffico, un insieme di feature sia numeriche sia categoriche, tra cui: il protocollo di trasporto (\texttt{Protocol}), il servizio applicativo (\texttt{Service}), lo stato della connessione (\texttt{Conn\_state}), le porte sorgente e destinazione (\texttt{Scr\_port}, \texttt{Des\_port}), il numero di byte mancanti (\texttt{missed\_bytes}), una serie di indicatori booleani relativi ai flag TCP osservati nel flusso (\texttt{is\_syn\_only}, \texttt{Is\_SYN\_ACK}, \texttt{is\_pure\_ack}, \texttt{FIN or RST}, \texttt{is\_SYN\_with\_RST}), indicatori di anomalia a livello di host (\texttt{anomaly\_alert}, \texttt{OSSEC\_alert}, \texttt{OSSEC\_alert\_level}), indicatori di attività di autenticazione (\texttt{Login\_attempt}, \texttt{Succesful\_login}) e di attività a livello di processo (\texttt{File\_activity}, \texttt{Process\_activity}, \texttt{read\_write\_physical.process}, \texttt{is\_privileged}). Il dataset espone inoltre tre livelli di etichettatura (\texttt{class1}, \texttt{class2}, \texttt{class3}), di crescente granularità, dei quali il presente lavoro utilizza \texttt{class3} come target di classificazione binaria (traffico benigno/attacco).
 
-\subsection{tabelle avanzate}
-Con multirow (e multicolumn che però serve meno) puoi fare righe (colonne) più grandi del normale.\\
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|c|c|c|c|c|}
-    \hline
-        \textbf{Team} & \textbf{LoC verificate} & \textbf{LoC sviluppatori} & \textbf{Ore sviluppatori} & \textbf{LoC/h}  \\ \hline
-        \multirow{2}*{1} & 1148& m: 888& m: 40& 22\cr & Diff: -1852& $\sigma$: 371& $\sigma$: 27& \\ \hline
-        \multirow{2}*{2}&1858& m: 1404& m: 65& 22\cr &  Diff: -448& $\sigma$: 1222& $\sigma$: 78& \\ \hline
-        \multirow{2}*{3}&1640& m: 1400& m: 96& 15\cr &  Diff: -2810& $\sigma$: 1417& $\sigma$: 41& \\ \hline
-    \end{tabular}
-    \caption{CAPTION}
-    \label{tab:avanz}
-\end{table}
+\section{Feature engineering}
 
-\subsubsection{Tabelle girate}
-Se usi landscape la tabella viene girata (nel caso dovessi inserirne una molto grande)
-\begin{landscape}
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|c|c|}
-    \hline
-        \textbf{Numero} & \textbf{\#}  \\ \hline
-        UNO & 1  \\ \hline
-        DUE & 2  \\ \hline
-        TRE & 3  \\ \hline
-    \end{tabular}
-    \caption{Tabella girata}
-    \label{tab:girata}
-\end{table}
+Prima di poter essere utilizzato dal modello, il dataset richiede alcune trasformazioni. In primo luogo, poiché il modello opera esclusivamente su valori numerici, le feature categoriche testuali (ad esempio il protocollo di comunicazione) sono state trasformate in variabili numeriche tramite tecniche di encoding, tra cui il \emph{one-hot encoding}. È stato inoltre necessario introdurre un allineamento delle colonne tra i diversi chunk temporali del dataset, poiché non tutti i protocolli osservati compaiono in ogni intervallo temporale: senza tale allineamento, un protocollo presente in un giorno e assente nel giorno successivo produrrebbe uno schema di feature incoerente, non compatibile con l'architettura fissa della rete neurale. Infine, la colonna temporale, inizialmente rappresentata come un semplice timestamp, è stata trasformata in una feature derivata che esprime la velocità del traffico, ritenuta più informativa ai fini della classificazione rispetto al valore assoluto del tempo.
 
-\end{landscape}
+\section{Analisi dell'importanza delle feature}
 
-\section{Grafici}
-Puoi creare grafici con tikzpicture.
-Qui c'e' un grafico con asse x e y customizzabili per ogni tipo d'utilizzo.
-Tutti i tool e tutorial necessari per creare ogni tipo di grafico puo' essere trovato qui: https://tikz.dev/
+Al fine di identificare e rimuovere feature ridondanti o potenzialmente responsabili di overfitting, è stato sviluppato lo script \texttt{analizzatoreFeatureUsate.py}, che esegue un'analisi dell'importanza delle feature basata su un classificatore Random Forest addestrato su un campione di 20.000 righe del dataset combinato. Lo script effettua dapprima una fase di encoding (one-hot encoding della colonna \texttt{Protocol}, codifica categoriale delle colonne \texttt{Source} e \texttt{Destination}), quindi rimuove dalle feature di analisi le colonne ritenute ``falsi amici'' -- ossia potenziali fonti di \emph{data leakage} o di overfitting, quali gli identificativi progressivi (\texttt{No.}), il timestamp grezzo (\texttt{Time}) e i campi testuali descrittivi (\texttt{Info}) -- oltre naturalmente alla colonna target (\texttt{Label}):
 
-\begin{tikzpicture}
-  % Draw x-axis
-  \draw[->] (-1,0) -- (15,0) node[right] {$x$};
-  % Draw y-axis
-  \draw[->] (0,-1) -- (0,5) node[above] {$y$};
-  
-  % Draw grid lines (optional)
-  \foreach \x in {1,2,3,4,5,6,7,8,9,10,11,12,13,14}
-    \draw (\x,-0.1) -- (\x,0.1);
-  \foreach \y in {1,2,3,4}
-    \draw (-0.1,\y) -- (0.1,\y);
-  
-  % Draw origin
-  \fill (0,0) circle[radius=2pt];
-\end{tikzpicture}
+\begin{lstlisting}[caption={Estratto dello script \texttt{analizzatoreFeatureUsate.py}: preparazione delle feature per l'analisi di importanza}]
+if 'Protocol' in X_analysis.columns:
+    X_analysis = pd.get_dummies(X_analysis, columns=['Protocol'], prefix='Proto')
 
-\section{Import di file TeX}
-Puoi importare altri file tex per intero includendoli cosi'.
-Questo e' molto utile per mettere insieme diversi capitoli di una tesi o di un grande documento in generale.
+for col in ['Source', 'Destination']:
+    if col in X_analysis.columns:
+        X_analysis[col] = X_analysis[col].astype('category').cat.codes
 
-\input{imported_document.tex}
+cols_to_drop = ['Label', 'Info', 'No.', 'Time']
+existing_drops = [c for c in cols_to_drop if c in X_analysis.columns]
 
-\chapter{Altri comandi}
-bla bla
-\section{Math mode}
-Per inserire simboli matematici (e lettere greche) serve la math mode:
+X = X_analysis.drop(columns=existing_drops)
+y = df['Label']
 
-Usando il simbolo del dollaro hai la math mode inline: $5 \times \alpha = 3\lambda$
-
-Altrimenti hai quella con le barre e le quadre \[ \frac{\sum_6^i 3i\theta}{12k^2\times 7}\]
-
-Infine hai quelle con begin equation (che vengono numerate):
-\begin{equation}
-    \frac{1}{2}\times A_{bcd}\times E^{fgh}
-\end{equation}
-
-Anche le equazioni possono avere label.
-\section{url e footnote}
-per mettere un link usa url: \url{wikipedia.it}
-
-per fare note a piè di pagina usa footnote\footnote{Tipo questa}
-
-\section{Code snippets}
-per inserire code snippets, puoi usare lstlisting
-
-\begin{lstlisting}[language=c]
-#include<stdio.h>
-
-int main(void) {
-    printf("Hello World\n");
-    return 0;
-}
+rf = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
+rf.fit(X, y)
 \end{lstlisting}
 
-\section{verbatim}
-Se ti serve scrivere codice o qualcosa per cui ti serve una formattazione specifica usa verbatim:
-\begin{verbatim}
-    Qui puoi scrivere
+L'analisi condotta su una prima versione del dataset combinato ha prodotto la seguente classifica delle feature più rilevanti, espressa in termini di importanza relativa (\emph{feature importance}) calcolata dal Random Forest:
 
-    come      vuoi
-    e viene tutto
+\begin{table}[H]
+\centering
+\begin{tabular}{clc}
+\toprule
+\textbf{Rango} & \textbf{Feature} & \textbf{Peso} \\
+\midrule
+1 & Source & 0.3085 \\
+2 & Destination & 0.2457 \\
+3 & Proto\_TCP & 0.1749 \\
+4 & Proto\_PN-MRP & 0.1494 \\
+5 & Length & 0.0903 \\
+6 & Proto\_COTP & 0.0140 \\
+7--16 & altre feature di protocollo & $< 0.01$ ciascuna \\
+\bottomrule
+\end{tabular}
+\caption{Classifica delle feature più rilevanti sul dataset combinato iniziale.}
+\end{table}
 
-scritto
-                    monospaziato
-\end{verbatim}
-\section{riferimenti}
-Come detto prima le label servono per riferirsi ad altre parti del testo citate precendentemente.\\
-Ti consiglio di metterle sempre almeno a figure. immagini e capitoli.
+Su questa versione del dataset nessuna feature risultava utilizzata in modo tale da destare particolare preoccupazione di overfitting, sebbene alcune feature di protocollo a peso quasi nullo siano state considerate candidate alla rimozione in quanto fonte di rumore. L'analisi ripetuta sulla versione X-IIoTID del dataset, adottata nella pipeline finale, ha invece prodotto una classifica sensibilmente diversa:
 
-Per riferirti a qualcosa basta fare ref seguito dal nome della label, ad esempio ``vedi capitolo \ref{chap:intro}''.\\In questo modo dal pdf cliccando sulla reference, ti porta direttamente al punto giusto.
-Altri pacchetti come \texttt{fancyref} e \texttt{cleveref} (consigliato) possono aiutare nell'automatizzare la creazione delle refrence. Usando ad esempio \texttt{\cref{chap:intro}} viene generata la dicitura corrispondete all'elemento a cui si fa riferimento, seguita dalla numerazione. Eccone un esempio: \cref{chap:intro}.
-\section{citazioni}
-Per citare si usa cite seguito dal nome dell'articolo nel file.bib, ad esempio ``come visto nell'articolo di tizio\cite{greenwade93}''.
+\begin{table}[H]
+\centering
+\begin{tabular}{clc}
+\toprule
+\textbf{Rango} & \textbf{Feature} & \textbf{Peso} \\
+\midrule
+1 & Scr\_port & 0.2806 -- 0.3277 \\
+2 & Des\_port & 0.0571 -- 0.2739 \\
+3 & missed\_bytes & 0.2311 -- 0.2748 \\
+4 & is\_with\_payload & 0.0104 -- 0.1042 \\
+5 & Service & 0.0540 -- 0.0820 \\
+6 & is\_privileged & 0.0370 -- 0.0645 \\
+7 & read\_write\_physical.process & 0.0481 -- 0.0496 \\
+8 & Process\_activity & 0.0296 -- 0.0540 \\
+\bottomrule
+\end{tabular}
+\caption{Classifica delle feature più discriminanti sul dataset X-IIoTID, valori osservati in run successive.}
+\end{table}
 
-Se non ti piace lo stile di citazione puoi modificarlo sopra dove scrivo usepackage natbib, ma quello impostato attualmente dovrebbe andare bene.
+Si osserva come le feature \texttt{OSSEC\_alert\_level}, \texttt{Login\_attempt} e \texttt{Succesful\_login} presentino peso nullo, e siano pertanto candidate naturali alla rimozione senza impatto sulle prestazioni del modello. La Figura~\ref{fig:importanza_feature} riporta graficamente la classifica di importanza delle feature ottenuta sul dataset bilanciato intermedio (\texttt{balanced\_dataset\_500K\_400K\_100K.csv}) descritto nella Sezione 3.5, prodotta dallo stesso script \texttt{analizzatoreFeatureUsate.py}.
 
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.75\textwidth]{importanza_feature_bilanciato.png}
+\caption{Classifica dell'importanza delle feature (Random Forest, \texttt{analizzatoreFeatureUsate.py}) calcolata sul dataset bilanciato intermedio, propedeutica alla selezione delle feature adottata nella pipeline finale.}
+\label{fig:importanza_feature}
+\end{figure}
 
+La dominanza della coppia \texttt{Scr\_port}/\texttt{Des\_port} è stata inoltre oggetto di specifica attenzione nel Capitolo 5, poiché una dipendenza eccessiva da tale feature rischia di ridurre la capacità di generalizzazione del modello, come discusso nella Sezione 5.3.
 
-\renewcommand{\bibsection}{}
-\chapter*{Riferimenti bibliografici}
-\bibliography{refs}
-\newpage
+\section{Il dataset di traffico reale Fischertechnik e il dataset HAI}
 
-\renewcommand{\appendixtocname}{Appendici}
-\renewcommand{\appendixpagename}{Appendici}
-% \csname @openrightfalse\endcsname
-\pagenumbering{gobble}
-\begin{appendices}
-\chapter{Appendice 1}
-\label{Appendice:A}
-Probabilmente ci sono un sacco di package non utilizzati ma così funziona tutto quindi non ho indagato oltre.
+A supporto di quanto descritto nella Sezione 3.1, è opportuno documentare con precisione la provenienza del dataset di traffico reale Fischertechnik utilizzato nelle prime fasi sperimentali, poiché costituisce l'unico dataset, tra quelli impiegati, derivato direttamente dall'osservazione dell'impianto didattico oggetto del tirocinio. Lo script \texttt{mergeBenigniMaligni.py} costruisce tale dataset a partire da quattro tracciati distinti acquisiti sull'impianto: un tracciato di funzionamento nominale (\texttt{Stable Normal Operation-Kit Data.csv}) e tre tracciati di attacco reali, corrispondenti rispettivamente a un accesso web non autorizzato al PLC (\texttt{WEB Access PLC Attack}), un attacco tramite protocollo TELNET (\texttt{TELNET PLC Attack}) e un attacco di tipo \emph{Man-in-the-Middle} tra PLC e interfaccia HMI (\texttt{MITM PLCHMI Attack}):
 
-Inoltre su internet c'è un sacco di documentazione se ti servisse.
-\chapter{Appendice B}
-\label{Appendice:B}
-Appendice B se serve
+\begin{lstlisting}[caption={Costruzione del dataset di traffico reale Fischertechnik (\texttt{mergeBenigniMaligni.py})}]
+file_normal = 'nuovi_dataset/RealTime/RealTime/Stable Normal Operation-Kit Data.csv'
+files_attack = [
+    'nuovi_dataset/RealTime/RealTime/WEB Access PLC Attack.csv',
+    'nuovi_dataset/RealTime/RealTime/TELNET PLC Attack.csv',
+    'nuovi_dataset/RealTime/RealTime/MITM PLCHMI Attack.csv'
+]
 
-\chapter{Embed di interi PDF}
-\label{Appendice:C}
-Se ti serve puoi fare embed di PDF interi con pdfpage, scegliendo anche le pagine (o mettendo - se le vuoi tutte):
+df_normal = pd.read_csv(file_normal)
+df_normal['Label'] = 0
 
-\includepdf[pages=1]{pdf/sample.pdf}
-\end{appendices}
+attack_list = []
+for f in files_attack:
+    temp_df = pd.read_csv(f)
+    temp_df['Label'] = 1
+    attack_list.append(temp_df)
 
-\newpage~\newpage
-\chapter*{Ringraziamenti}
-Grazie a tutti
+df_attacks = pd.concat(attack_list, ignore_index=True)
+df_final = pd.concat([df_normal, df_attacks], ignore_index=True)
+df_final = shuffle(df_final, random_state=42).reset_index(drop=True)
+\end{lstlisting}
+
+I quattro tracciati sono concatenati ed etichettati binariamente (0 per il traffico nominale, 1 per ciascuno dei tre scenari di attacco), quindi mescolati casualmente (\texttt{shuffle}) prima del salvataggio nel file \texttt{realTimeDataset\_combined.csv}. È opportuno osservare criticamente questa scelta progettuale: il mescolamento casuale, per quanto motivato dalla necessità di evitare che il modello osservi lunghe sequenze omogenee di una sola classe, elimina l'ordine temporale originario di acquisizione dei quattro tracciati. La successiva suddivisione in ``giorni'' simulati, operata dallo script di addestramento \texttt{ACDBrealTimeDataset.py} tramite lettura a chunk del file combinato, non riflette pertanto una reale sequenza temporale di osservazione del traffico, bensì un ordine artificialmente ricostruito. Questo aspetto, utile a garantire un buon bilanciamento di classe all'interno di ciascun chunk, rappresenta un compromesso metodologico di cui si è tenuto conto nell'interpretazione dei risultati discussi nel Capitolo 5, dove il concetto di ``giorno simulato'' va inteso come unità di apprendimento incrementale piuttosto che come intervallo temporale reale.
+
+Lo script \texttt{ACDBrealTimeDataset.py}, che addestra un modello \texttt{DeepMLP} su questo dataset, introduce inoltre due accorgimenti di feature engineering non presenti nella pipeline finale: il calcolo di una feature di \emph{Inter-Arrival Time} (\texttt{IAT}), ottenuta come differenza tra timestamp successivi, e un meccanismo di allineamento dinamico delle colonne (\texttt{expected\_columns}) che, memorizzando lo schema di colonne del primo chunk elaborato, inserisce colonne mancanti con valore nullo nei chunk successivi in cui un dato protocollo non compare. È proprio a partire da questo dataset che è stata condotta la prima analisi di importanza delle feature riportata in Tabella 3.1 del Capitolo 3, che aveva infatti evidenziato la dominanza delle feature \texttt{Source}, \texttt{Destination} e del protocollo TCP: un risultato coerente con la natura del dataset, costituito da un numero limitato di scenari di attacco realizzati verso indirizzi IP e protocolli specifici dell'impianto.
+
+In una fase sperimentale successiva è stato valutato anche il dataset HAI (\emph{Hardware-in-the-loop Augmented ICS}), costituito da misurazioni fisiche di sensori e attuatori anziché da traffico di rete. Poiché le etichette di attacco e le feature di processo sono distribuite in file separati, è stato necessario un passaggio di allineamento tramite lo script \texttt{mergeHAIdataset.py}, che esegue un \emph{inner join} tra i file di feature e i file di etichetta sulla base del timestamp comune, per poi riordinare cronologicamente il risultato -- un passaggio esplicitamente motivato, nel codice, dalla necessità di preservare la sequenzialità temporale dei dati ai fini del Continual Learning, a differenza di quanto osservato per il dataset Fischertechnik. Lo script di addestramento dedicato, \texttt{ACDBarchiveDatasetHAI.py}, adotta una definizione di ``giorno simulato'' specifica per la natura fisica di questo dataset, impostando la dimensione del chunk a 3600 righe, corrispondenti a un'ora di funzionamento reale dell'impianto campionato a 1 Hz. Un ulteriore script diagnostico, \texttt{contaRigheDataset.py}, è stato utilizzato per ispezionare la cardinalità dei valori unici di ciascuna colonna del dataset HAI (tramite \texttt{nunique()}), a supporto della decisione, discussa nel Capitolo 5, di orientare la sperimentazione finale verso il dataset X-IIoTID, ritenuto più ricco in termini di varianza tra le classi.
+
+\section{Criteri di rimozione delle feature}
+
+Sulla base dell'analisi precedente, si è proceduto a valutare sperimentalmente l'effetto della rimozione delle feature a peso trascurabile (\texttt{OSSEC\_alert\_level}, \texttt{Login\_attempt}, \texttt{Succesful\_login}). I risultati, discussi in dettaglio nel Capitolo 5, hanno mostrato che tale rimozione non altera in modo significativo l'accuratezza del modello, confermando che tali feature costituiscono principalmente una fonte di rumore piuttosto che di segnale utile alla classificazione, e giustificando pertanto una progettazione più snella dello schema di feature adottato nella pipeline finale.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.85\textwidth]{grafico_finale_snello.png}
+\caption{Andamento dell'accuratezza a seguito della rimozione delle feature a peso trascurabile individuate in Figura~\ref{fig:importanza_feature} (``dataset snellito''): la curva risulta sostanzialmente sovrapponibile a quella ottenuta con lo schema di feature completo, a conferma della natura ridondante delle feature rimosse.}
+\label{fig:dataset_snello}
+\end{figure}
+
+% =====================================================================
+\chapter{Architettura del Sistema Proposto}
+% =====================================================================
+
+\section{Visione d'insieme}
+
+Il sistema realizzato si articola in quattro moduli distinti ma tra loro interoperanti, ciascuno implementato come script Python indipendente: un modulo di \textbf{addestramento incrementale} (\texttt{validazioneACDBconEmbedding.py}), che implementa la strategia di Continual Learning e produce come output un modello addestrato e un normalizzatore (\emph{scaler}) persistiti su disco; un modulo di \textbf{acquisizione e inferenza live} (\texttt{ACDBliveScript.py}), che cattura il traffico di rete in tempo reale, lo aggrega in flussi coerenti con lo schema di feature del dataset di addestramento e ne classifica la natura (benigna o malevola) utilizzando il modello prodotto dal primo modulo; un modulo di \textbf{analisi delle feature} (\texttt{analizzatoreFeatureUsate.py}), descritto nel Capitolo 3, che opera come strumento diagnostico di supporto alla progettazione dello schema di feature; e un modulo di \textbf{visualizzazione e monitoraggio} (\texttt{visualizza\_risultati.py}), che elabora i log prodotti dal modulo di addestramento per produrre una dashboard statistica delle prestazioni del modello nel tempo.
+
+L'aspetto architetturale più rilevante del sistema è la coerenza garantita tra fase di addestramento e fase di inferenza live: la classe che definisce l'architettura della rete neurale (\texttt{EmbeddingMLP}) è replicata identicamente nei due script di training e di inferenza, e lo schema di feature continue (\texttt{CONT\_COLS}) utilizzato in fase di acquisizione live è definito in modo da rispecchiare esattamente l'ordine e la natura delle colonne osservate in fase di addestramento, incluso il normalizzatore (\texttt{StandardScaler}) serializzato al termine dell'addestramento e ricaricato in fase di inferenza. Questa scelta progettuale, per quanto comporti una duplicazione di codice tra i due script, è stata ritenuta preferibile a un disaccoppiamento più aggressivo, in ragione della criticità di un eventuale disallineamento tra le feature attese dal modello e quelle effettivamente fornite in fase di inferenza, che comprometterebbe silenziosamente la correttezza delle predizioni.
+
+\section{Modulo di apprendimento incrementale}
+
+\subsection{Architettura del modello: EmbeddingMLP}
+
+Il cuore del sistema di anomaly detection è costituito da una rete neurale feed-forward, denominata \texttt{EmbeddingMLP}, progettata per gestire in modo differenziato le feature continue del dataset e le feature categoriche ad alta cardinalità rappresentate dalle porte di rete sorgente e destinazione. Trattare le porte di rete come semplici feature numeriche normalizzate risulterebbe concettualmente scorretto, poiché il valore numerico di una porta non è ordinale (non esiste una relazione di ordine significativa tra la porta 80 e la porta 443 rilevante ai fini della classificazione): per questo motivo si è adottata una tecnica di \emph{entity embedding}, che mappa ciascun valore di porta (nell'intervallo $[0, 65535]$) in uno spazio vettoriale continuo di dimensione 32, appreso durante l'addestramento.
+
+\begin{lstlisting}[caption={Architettura della rete \texttt{EmbeddingMLP} (\texttt{validazioneACDBconEmbedding.py})}]
+class EmbeddingMLP(nn.Module):
+    def __init__(self, cont_input_size, num_ports=65536, emb_dim=32):
+        super(EmbeddingMLP, self).__init__()
+        self.emb_scr = nn.Embedding(num_ports, emb_dim)
+        self.emb_des = nn.Embedding(num_ports, emb_dim)
+        total_input = cont_input_size + (emb_dim * 2)
+
+        self.net = nn.Sequential(
+            nn.Linear(total_input, 1024),
+            nn.BatchNorm1d(1024),
+            nn.LeakyReLU(0.1),
+            nn.Dropout(0.4),
+            nn.Linear(1024, 512),
+            nn.BatchNorm1d(512),
+            nn.LeakyReLU(0.1),
+            nn.Dropout(0.3),
+            nn.Linear(512, 2)
+        )
+
+    def forward(self, x):
+        x_cont = x[:, :-2]
+        x_ports = x[:, -2:].long()
+        s_emb = self.emb_scr(x_ports[:, 0])
+        d_emb = self.emb_des(x_ports[:, 1])
+        combined = torch.cat([x_cont, s_emb, d_emb], dim=1)
+        return self.net(combined)
+\end{lstlisting}
+
+Dal punto di vista implementativo, il tensore di input viene per convenzione costruito con le due colonne relative alle porte poste sempre in ultima posizione (\texttt{x[:, -2:]}), in modo da poter essere separate algebricamente dal resto delle feature continue (\texttt{x[:, :-2]}) all'interno del metodo \texttt{forward}. I due embedding (sorgente e destinazione) vengono calcolati indipendentemente e concatenati alle feature continue prima di essere forniti in ingresso alla rete propriamente detta.
+
+L'architettura della componente densa della rete è costituita da due blocchi Lineare--BatchNorm--LeakyReLU--Dropout, con dimensioni rispettivamente di 1024 e 512 neuroni, seguiti da uno strato di uscita a 2 neuroni (classificazione binaria benigno/attacco). L'uso della \emph{Batch Normalization} contribuisce a stabilizzare la distribuzione delle attivazioni interne durante l'addestramento incrementale, mentre la funzione di attivazione \emph{LeakyReLU}, rispetto alla più comune ReLU, evita il problema dei neuroni ``morti'' mantenendo un gradiente non nullo anche per attivazioni negative. Il \emph{Dropout}, con tassi rispettivamente del 40\% e del 30\%, ha la funzione di regolarizzare la rete impedendole di fare eccessivo affidamento su singoli neuroni, riducendo il rischio di overfitting -- un accorgimento la cui necessità è emersa empiricamente nel corso della sperimentazione descritta nel Capitolo 5, in risposta a un'architettura più semplice (\texttt{SimpleMLP}) che aveva mostrato segnali di scarsa capacità di generalizzazione.
+
+\subsection{Preprocessing dei dati}
+
+La funzione \texttt{preprocess\_chunk} è responsabile della trasformazione di ciascun blocco (\emph{chunk}) di dati grezzi in tensori PyTorch pronti per l'addestramento o l'inferenza:
+
+\begin{lstlisting}[caption={Funzione di preprocessing (\texttt{validazioneACDBconEmbedding.py})}]
+def preprocess_chunk(df, fit_scaler=False):
+    port_cols = ['Scr_port', 'Des_port']
+    drop_cols = ['Timestamp', 'class1', 'class2', 'class3', 'is_pure_ack',
+                 'is_syn_only','File_activity', 'Service', 'Bad_checksum',
+                 'is_SYN_with_RST', 'anomaly_alert', 'OSSEC_alert', 'Succesful_login',
+                 'Login_attempt', 'OSSEC_alert_level']
+
+    df = df.fillna(0)
+    X_ports = df[port_cols].values.astype('float32')
+    X_cont = df.drop(columns=drop_cols + port_cols).values.astype('float32')
+
+    global is_scaler_fitted
+    if fit_scaler and not is_scaler_fitted:
+        X_cont = scaler.fit_transform(X_cont)
+        is_scaler_fitted = True
+    else:
+        X_cont = scaler.transform(X_cont)
+
+    X_final = np.hstack([X_cont, X_ports])
+    y = df['class3'].values.astype('int64')
+    return torch.from_numpy(X_final), torch.from_numpy(y)
+\end{lstlisting}
+
+La funzione separa le colonne relative alle porte (da instradare verso i livelli di embedding) dalle restanti feature continue, che vengono invece standardizzate tramite \texttt{StandardScaler} di scikit-learn. È interessante osservare la logica di \emph{fit} dello scaler: esso viene adattato (\texttt{fit\_transform}) esclusivamente sul primo chunk di dati ricevuto, e successivamente applicato in sola modalità \texttt{transform} su tutti i chunk successivi, tramite una variabile di stato globale (\texttt{is\_scaler\_fitted}). Questa scelta implementativa riflette un vincolo intrinseco dell'apprendimento incrementale: non è possibile ricalcolare media e deviazione standard su tutto il dataset, poiché i dati futuri non sono ancora disponibili al momento dell'addestramento su un dato chunk; la normalizzazione deve pertanto essere fissata una volta per tutte sulla base della distribuzione osservata nella prima porzione di dati, con il rischio -- accettato come compromesso -- che tale distribuzione non sia perfettamente rappresentativa dei chunk successivi.
+
+Le colonne escluse (\texttt{drop\_cols}) comprendono, oltre al timestamp e alle tre colonne di etichettatura (di cui solo \texttt{class3} è utilizzata come target), un sottoinsieme di feature che l'analisi di importanza descritta nel Capitolo 3 ha suggerito di rimuovere o che sono state escluse per ragioni di coerenza con lo scenario di acquisizione live, in cui tali informazioni (ad esempio relative ad alert generati da sistemi di monitoraggio host, quali OSSEC) non sono disponibili a partire dalla sola osservazione del traffico di rete.
+
+\subsection{Simulazione del flusso temporale e strategia di Continual Learning}
+
+Il cuore della simulazione dell'apprendimento incrementale è realizzato leggendo il file CSV a blocchi (\texttt{chunksize}), ciascuno dei quali rappresenta convenzionalmente un ``giorno'' di traffico osservato dall'impianto:
+
+\begin{lstlisting}[caption={Configurazione della simulazione e della strategia di Continual Learning (\texttt{validazioneACDBconEmbedding.py})}]
+file_path = 'nuovi_dataset/X-IIoTID_dataset_2.csv'
+n_giorni_simulati = 1000
+righe_per_giorno = 1000
+test_size = 3000
+
+reader = pd.read_csv(file_path, chunksize=righe_per_giorno, sep=';')
+first_chunk = next(reader)
+X_first, y_first = preprocess_chunk(first_chunk, fit_scaler=True)
+
+indices = np.random.choice(len(X_first), size=min(test_size, len(X_first)), replace=False)
+test_set_puro = make_tensor_classification_dataset(X_first[indices], y_first[indices], task_labels=0)
+
+model = EmbeddingMLP(cont_input_size=cont_feat_size, emb_dim=32)
+optimizer = torch.optim.AdamW(model.parameters(), lr=0.00005, weight_decay=0.01)
+class_weights = torch.tensor([1.2, 1.0])
+criterion = nn.CrossEntropyLoss(weight=class_weights)
+
+strategy = SupervisedTemplate(
+    model=model, optimizer=optimizer, criterion=criterion,
+    train_mb_size=64, train_epochs=5,
+    plugins=[ReplayPlugin(mem_size=6000)],
+    evaluator=eval_plugin
+)
+\end{lstlisting}
+
+Un elemento architetturale centrale è la costruzione, a partire dal primo chunk di dati, di un insieme di test ``puro'' (\texttt{test\_set\_puro}), estratto per campionamento casuale e mai utilizzato in addestramento. Tale insieme, ripreso concettualmente dall'espressione informale di ``prova del 9'' adottata negli appunti di progetto, ha la funzione di verificare, a ogni iterazione della simulazione, se il modello mantenga la capacità di generalizzare su dati mai osservati, distinguendo tale capacità dalla semplice memorizzazione dei dati più recenti. Questo meccanismo si è rivelato determinante nella diagnosi di fenomeni di overfitting nel corso della sperimentazione, come discusso nel Capitolo 5.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.85\textwidth]{prova_del_9.png}
+\caption{Confronto tra l'accuratezza sul chunk corrente e l'accuratezza sul test set ``prova del 9'', mai osservato in addestramento: il divario tra le due curve è l'indicatore diagnostico utilizzato per distinguere apprendimento generalizzante e memorizzazione dei dati recenti.}
+\label{fig:prova_del_9}
+\end{figure}
+
+La strategia di Continual Learning è realizzata tramite il \texttt{SupervisedTemplate} di Avalanche, configurato con l'ottimizzatore \texttt{AdamW} (una variante di Adam con \emph{weight decay} disaccoppiato, che favorisce una migliore regolarizzazione rispetto al classico Adam) e una funzione di costo \texttt{CrossEntropyLoss} pesata (\texttt{class\_weights = [1.2, 1.0]}), che assegna un peso leggermente maggiore alla classe di attacco rispetto alla classe benigna, per compensare parzialmente lo sbilanciamento tra le due classi tipico dei dataset di traffico industriale, nei quali il traffico benigno tende a essere numericamente predominante. Il meccanismo anti-forgetting è affidato al \texttt{ReplayPlugin}, configurato con una memoria (\texttt{mem\_size}) di 6000 esempi: a ogni iterazione di addestramento su un nuovo chunk, il plugin combina i nuovi dati con un campione degli esempi memorizzati nel buffer, secondo il meccanismo di \emph{rehearsal} descritto nel Capitolo 2.
+
+Il ciclo principale della simulazione, per ciascun giorno simulato, esegue tre operazioni in sequenza: costruzione di uno scenario Avalanche (\texttt{dataset\_benchmark}) contenente il chunk corrente sia come insieme di training sia come primo insieme di test, insieme al test set puro come secondo insieme di test; addestramento della strategia sul chunk corrente (\texttt{strategy.train}); valutazione della strategia su entrambi gli insiemi di test (\texttt{strategy.eval}), da cui vengono estratte le metriche di accuratezza corrente e di accuratezza sul test puro.
+
+\subsection{Metriche di valutazione e logging}
+
+Per ciascun giorno simulato, oltre alla metrica di accuratezza fornita nativamente da Avalanche, lo script calcola in modo esplicito la matrice di confusione sul test set puro tramite la funzione \texttt{get\_raw\_metrics}:
+
+\begin{lstlisting}[caption={Calcolo delle metriche raw sul test set puro (\texttt{validazioneACDBconEmbedding.py})}]
+def get_raw_metrics(model, test_set):
+    model.eval()
+    all_preds, all_labels = [], []
+    loader = torch.utils.data.DataLoader(test_set, batch_size=128)
+    with torch.no_grad():
+        for batch in loader:
+            x, y, _ = batch
+            outputs = model(x.to(next(model.parameters()).device))
+            _, preds = torch.max(outputs, 1)
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(y.cpu().numpy())
+    cm = confusion_matrix(all_labels, all_preds)
+    tn, fp, fn, tp = cm.ravel() if cm.shape == (2, 2) else (0,0,0,0)
+    return tn, fp, fn, tp, all_labels, all_preds
+\end{lstlisting}
+
+A partire dai quattro valori della matrice di confusione (veri negativi, falsi positivi, falsi negativi, veri positivi) vengono calcolate manualmente precision, recall e F1-Score sulla classe di attacco, con opportuna gestione dei casi limite in cui il denominatore sia nullo. Tutte le metriche prodotte a ogni giorno simulato (accuratezza corrente, accuratezza sul test puro, F1-Score, e i quattro valori della matrice di confusione) vengono infine scritte in un file CSV di log (\texttt{validazione\_finale\_X\_IIoTID.csv}), utilizzato come input dal modulo di visualizzazione descritto nella Sezione 4.4.
+
+\subsection{Persistenza del modello}
+
+Al termine della simulazione, il modello addestrato e il normalizzatore vengono serializzati su disco (rispettivamente in formato \texttt{state\_dict} di PyTorch e tramite \texttt{joblib}), costituendo l'interfaccia di scambio tra il modulo di addestramento e il modulo di inferenza live descritto nella sezione successiva:
+
+\begin{lstlisting}[caption={Persistenza del modello e dello scaler (\texttt{validazioneACDBconEmbedding.py})}]
+torch.save(model.state_dict(), 'model.pth')
+joblib.dump(scaler, 'scaler.pkl')
+\end{lstlisting}
+
+\section{Modulo di acquisizione e inferenza live}
+
+\subsection{Cattura del traffico e aggregazione a flussi}
+
+Il modulo \texttt{ACDBliveScript.py} realizza la componente di acquisizione in tempo reale del sistema, sfruttando la libreria \texttt{Scapy} per la cattura a basso livello dei pacchetti di rete tramite la funzione \texttt{sniff}. A differenza del dataset di addestramento, in cui ogni riga rappresenta un flusso di traffico già aggregato, il traffico intercettato dal vivo si presenta come una sequenza di singoli pacchetti; è stato pertanto necessario progettare un meccanismo di aggregazione a flussi (\emph{flow aggregation}) che ricostruisca, a partire dai singoli pacchetti, feature statistiche coerenti con quelle osservate dal modello in fase di addestramento.
+
+L'aggregazione si basa su tre classi cooperanti. La classe \texttt{FlowKey} definisce l'identità di un flusso a partire dalla quintupla (IP sorgente, IP destinazione, porta sorgente, porta destinazione, protocollo), normalizzando l'ordine di IP e porte in modo che pacchetti appartenenti alla stessa connessione TCP, mediante l'ordinamento canonico della coppia (IP, porta), vengano correttamente ricondotti alla medesima chiave indipendentemente dalla direzione del pacchetto osservato:
+
+\begin{lstlisting}[caption={Normalizzazione della direzione del flusso (\texttt{ACDBliveScript.py})}]
+class FlowKey:
+    def __init__(self, src_ip, dst_ip, src_port, dst_port, proto):
+        if (src_ip, src_port) > (dst_ip, dst_port):
+            src_ip, dst_ip   = dst_ip, src_ip
+            src_port, dst_port = dst_port, src_port
+        self.key = (src_ip, dst_ip, src_port, dst_port, proto)
+
+    def __hash__(self):  return hash(self.key)
+    def __eq__(self, o): return self.key == o.key
+\end{lstlisting}
+
+La classe \texttt{FlowRecord} mantiene lo stato incrementale di un singolo flusso, accumulando, pacchetto dopo pacchetto, le informazioni necessarie a ricostruire le feature booleane osservate nel dataset X-IIoTID: presenza di un flag SYN isolato (indicativo dell'apertura di una connessione), presenza di un flag SYN-ACK, presenza di un flag ACK puro, presenza di payload applicativo, presenza di flag di chiusura (FIN o RST) e la combinazione anomala SYN+RST, tipicamente indicativa di scansioni di rete o comportamenti anomali:
+
+\begin{lstlisting}[caption={Aggiornamento dello stato del flusso a partire dai flag TCP (\texttt{ACDBliveScript.py})}]
+def update(self, pkt, ts, is_forward):
+    from scapy.all import TCP, IP
+    self.last_ts = ts
+    self.pkt_count += 1
+
+    if pkt.haslayer(TCP):
+        flags = int(pkt[TCP].flags)
+        syn = bool(flags & 0x02)
+        ack = bool(flags & 0x10)
+        fin = bool(flags & 0x01)
+        rst = bool(flags & 0x04)
+
+        if syn and not ack: self.has_syn = True
+        if syn and ack: self.has_syn_ack = True
+        if ack and not syn: self.has_ack = True
+        if fin or rst: self.has_fin_rst = True
+        if syn and rst: self.has_syn_rst = True
+
+        if len(pkt[TCP].payload) > 0:
+            self.has_payload = True
+\end{lstlisting}
+
+I flag TCP sono estratti mediante operazioni di mascheramento a livello di bit sul campo \texttt{flags} del pacchetto, secondo la codifica standard del protocollo (bit 0x01 per FIN, 0x02 per SYN, 0x04 per RST, 0x10 per ACK). Infine, la classe \texttt{FlowAggregator} gestisce il ciclo di vita dei flussi attivi tramite un dizionario indicizzato per \texttt{FlowKey}, chiudendo un flusso -- e spostandolo nella lista dei flussi completati, pronti per l'inferenza -- non appena viene osservato un pacchetto con flag FIN o RST, oppure quando il flusso supera un intervallo di inattività configurabile (\texttt{FLOW\_TIMEOUT}, impostato di default a 60 secondi), gestito dal metodo \texttt{flush\_timed\_out}.
+
+\subsection{Coerenza dello schema di feature con il dataset di training}
+
+Un aspetto architetturale critico del modulo di inferenza live è la garanzia che le feature calcolate a partire dai flussi aggregati siano esattamente coerenti, per numero, ordine e semantica, con quelle utilizzate in fase di addestramento. A tal fine lo script definisce esplicitamente la lista ordinata delle colonne continue attese dal modello (\texttt{CONT\_COLS}), che replica -- ad esclusione delle colonne di etichettatura e delle porte, gestite separatamente tramite embedding -- lo schema del dataset X-IIoTID:
+
+\begin{lstlisting}[caption={Mappatura esplicita delle colonne del dataset reale (\texttt{ACDBliveScript.py})}]
+CONT_COLS = [
+    'Protocol', 'Service', 'Conn_state', 'missed_bytes', 'is_syn_only',
+    'Is_SYN_ACK', 'is_pure_ack', 'is_with_payload', 'FIN or RST', 'Bad_checksum',
+    'is_SYN_with_RST', 'anomaly_alert', 'OSSEC_alert', 'OSSEC_alert_level',
+    'Login_attempt', 'Succesful_login', 'File_activity', 'Process_activity',
+    'read_write_physical.process', 'is_privileged'
+]
+\end{lstlisting}
+
+Il metodo \texttt{to\_feature\_dict} della classe \texttt{FlowRecord} traduce lo stato interno del flusso in un dizionario le cui chiavi ricalcano esattamente questo schema. Alcune feature, non ricostruibili a partire dalla sola osservazione del traffico di rete (ad esempio gli indicatori di alert generati da un sistema di monitoraggio a livello host, quali \texttt{OSSEC\_alert} o \texttt{Login\_attempt}), sono impostate a un valore di default (zero), rappresentando un limite intrinseco della pipeline di acquisizione puramente basata su rete, discusso criticamente nel Capitolo 5.
+
+\subsection{Inferenza a batch e logging}
+
+Per motivi di efficienza computazionale, l'inferenza non viene eseguita su ogni singolo flusso completato, ma accumulata in batch (parametro \texttt{BATCH\_SIZE}, di default 100 flussi), secondo la logica implementata nella funzione \texttt{packet\_callback}, invocata da Scapy per ogni pacchetto intercettato:
+
+\begin{lstlisting}[caption={Trigger dell'inferenza a batch e logging dei risultati (\texttt{ACDBliveScript.py})}]
+completed = aggregator.pop_completed()
+if len(completed) >= batch_size:
+    try:
+        tensor = flows_to_tensor(completed, scaler)
+        preds, probs = run_inference(model, tensor, device)
+        log_results(LOG_FILE, completed, preds, probs)
+
+        n_attacks = int(preds.sum())
+        if n_attacks > 0:
+            logger.warning(f"{n_attacks}/{len(preds)} flussi classificati come ATTACCO")
+        else:
+            logger.info(f"Batch di {len(preds)} flussi sicuro.")
+    except Exception as e:
+        logger.error(f"Errore durante l'elaborazione del batch: {e}")
+\end{lstlisting}
+
+La funzione \texttt{flows\_to\_tensor} converte la lista di flussi completati in un tensore PyTorch, applicando al sottoinsieme di feature continue lo stesso normalizzatore (\texttt{StandardScaler}) serializzato in fase di addestramento e ricaricato tramite \texttt{joblib.load}, mentre le porte sorgente e destinazione vengono accodate senza normalizzazione, essendo destinate al layer di embedding. La funzione \texttt{run\_inference} esegue quindi una singola \emph{forward pass} del modello in modalità di valutazione (\texttt{model.eval()}, con disattivazione del calcolo del gradiente tramite \texttt{torch.no\_grad()}), applicando una funzione \texttt{softmax} per ottenere una probabilità di appartenenza alla classe di attacco, utilizzata sia per la predizione finale (\texttt{argmax}) sia come indicatore di confidenza registrato nel log. I risultati di ciascun batch vengono infine persistiti in un file CSV (\texttt{live\_detections.csv}), contenente per ciascun flusso il timestamp di rilevazione, gli indirizzi IP e le porte coinvolte, il protocollo, l'etichetta predetta e la probabilità di attacco associata.
+
+\section{Modulo di analisi delle feature}
+
+Il modulo \texttt{analizzatoreFeatureUsate.py}, già descritto in dettaglio nel Capitolo 3, si colloca architetturalmente come strumento diagnostico offline, disaccoppiato dal ciclo di addestramento e inferenza, ma logicamente propedeutico alla progettazione dello schema di feature adottato sia dal modulo di addestramento sia dal modulo di inferenza live. La sua collocazione nel flusso di lavoro complessivo è pertanto a monte delle fasi descritte nelle Sezioni 4.2 e 4.3: le colonne escluse nella funzione \texttt{preprocess\_chunk} (Sezione 4.2.2) e lo schema \texttt{CONT\_COLS} (Sezione 4.3.2) sono frutto diretto delle analisi condotte con questo strumento.
+
+\section{Modulo di visualizzazione e monitoraggio}
+
+Il modulo \texttt{visualizza\_risultati.py} elabora il file di log prodotto dal modulo di addestramento incrementale per produrre una dashboard statistica multi-pannello, pensata per supportare un'analisi non solo puntuale ma evolutiva delle prestazioni del modello lungo l'intera simulazione.
+
+In una prima fase di elaborazione, lo script deriva dalle colonne grezze della matrice di confusione (\texttt{TN}, \texttt{FP}, \texttt{FN}, \texttt{TP}) due metriche di sensibilità (\emph{recall}) distinte per le due classi, oltre a un indicatore di divario (\emph{gap}) tra le due:
+
+\begin{lstlisting}[caption={Calcolo delle metriche di recall e delle medie mobili (\texttt{visualizza\_risultati.py})}]
+df['Recall_Benigni'] = (df['TN'] / (df['TN'] + df['FP'])) * 100
+df['Recall_Attacchi'] = (df['TP'] / (df['TP'] + df['FN'])) * 100
+df['Gap_Recall'] = abs(df['Recall_Benigni'] - df['Recall_Attacchi'])
+
+df['Acc_Corr_Media_Run'] = df['Acc_Corrente'].expanding().mean()
+df['Acc_P9_Media_Run'] = df['Acc_ProvaDel9'].expanding().mean()
+df['Recall_Atk_Media_Run'] = df['Recall_Attacchi'].expanding().mean()
+\end{lstlisting}
+
+Oltre ai valori grezzi (\emph{raw}), lo script calcola sia una media mobile (\emph{rolling window}, di ampiezza pari a 10 giorni) sia una media cumulativa (\emph{expanding}), che rappresenta la media di tutti i valori osservati fino al giorno corrente. La distinzione tra queste due tipologie di media è concettualmente rilevante: la media mobile evidenzia il \emph{trend} recente e locale delle prestazioni, filtrando il rumore ad alta frequenza, mentre la media cumulativa fornisce una stima via via più stabile e affidabile della prestazione media complessiva del modello lungo l'intero percorso di validazione, risultando particolarmente utile per apprezzare la convergenza del sistema nel lungo periodo.
+
+La dashboard principale è organizzata secondo una griglia di quattro pannelli (tramite \texttt{GridSpec}): un pannello che confronta l'andamento dell'accuratezza corrente con l'accuratezza sul test puro (interpretabile, rispettivamente, come proxy della capacità di apprendimento e della capacità di memoria a lungo termine del modello), un pannello dedicato all'analisi della sensibilità nel tempo (recall per le due classi), un \emph{boxplot} che ne riassume la distribuzione statistica e la presenza di outlier, e un pannello testuale di riepilogo statistico con le medie e la deviazione standard delle metriche principali, quest'ultima assunta come indicatore di stabilità del modello: valori più bassi di deviazione standard sull'accuratezza del test puro indicano un comportamento più affidabile e meno soggetto a fluttuazioni nel tempo. Una seconda figura, separata, riporta infine l'andamento dell'F1-Score nel tempo, con relativa media mobile, a completamento dell'analisi di stabilità del rilevamento.
+
+\section{Evoluzione architetturale del modello e sperimentazioni parallele}
+
+L'architettura \texttt{EmbeddingMLP} descritta nella Sezione 4.2.1 è l'esito di un processo di raffinamento incrementale documentato da numerose varianti di script prodotte nel corso del tirocinio, la cui analisi è utile a motivare le scelte progettuali finali.
+
+Il primo prototipo funzionante di Continual Learning, script \texttt{modelloCLdatasetPiccolo.py}, adotta gli strumenti più elementari messi a disposizione da Avalanche: un modello \texttt{SimpleMLP} predefinito dal framework, un benchmark costruito tramite \texttt{nc\_benchmark} con due sole esperienze (una per il traffico benigno, una per il traffico malevolo, con \texttt{task\_labels=False} per non rivelare al modello l'appartenenza di classe, secondo il paradigma \emph{single-incremental-task}), e la strategia \texttt{Replay} con una memoria di soli 200 campioni:
+
+\begin{lstlisting}[caption={Primo prototipo di Continual Learning con Avalanche (\texttt{modelloCLdatasetPiccolo.py})}]
+scenario = nc_benchmark(
+    full_dataset, full_dataset,
+    n_experiences=2, task_labels=False,
+    shuffle=True, seed=42
+)
+
+model = SimpleMLP(input_size=input_size, num_classes=2)
+optimizer = SGD(model.parameters(), lr=0.001, momentum=0.9)
+cl_strategy = Replay(
+    model, optimizer, criterion,
+    mem_size=200, train_mb_size=32, train_epochs=2
+)
+
+for experience in scenario.train_stream:
+    cl_strategy.train(experience)
+    results.append(cl_strategy.eval(scenario.test_stream))
+\end{lstlisting}
+
+Questo prototipo, benché concettualmente semplificato rispetto alla pipeline finale (le due esperienze corrispondono a un'unica ripartizione benigno/maligno anziché a una sequenza di giorni), ha avuto il merito di validare l'intera catena di integrazione tra dataset di traffico industriale e framework Avalanche, ed è quello a cui si deve l'introduzione della strategia \texttt{Replay} come meccanismo anti-forgetting di riferimento per tutto il proseguimento del lavoro.
+
+Gli script \texttt{CLdatasetGrandeGiornaliero.py} e \texttt{CLdatasetGrandeGiornalieroConTimestamp.py} costituiscono il passaggio successivo, in cui viene introdotta per la prima volta la simulazione a ``giorni'' tramite lettura a chunk del dataset (analoga a quella descritta nella Sezione 4.2.3), affiancata a un modello \texttt{SimpleMLP} a singolo strato nascosto e a un ottimizzatore SGD. È in questa fase che è stato introdotto il meccanismo del test set ``prova del 9'', descritto nella Sezione 4.2.3, per verificare la reale capacità di generalizzazione del modello su dati non osservati.
+
+L'aumento dell'orizzonte di simulazione a 2000 giorni (Sezione 5.3) ha reso evidenti i limiti di un'architettura a singolo strato nascosto e di un buffer di replay non bilanciato tra le classi. Gli script \texttt{VersioneConAdam.py} e \texttt{verificaNotOverfitting.py} documentano il tentativo di risposta a tali limiti: l'adozione di un modello \texttt{DeepMLP} a due strati nascosti (rispettivamente di 128 e 64 neuroni), la sostituzione dell'ottimizzatore SGD con Adam per una convergenza più stabile, e l'introduzione di un \texttt{BalancedExemplarsBuffer} al posto del buffer di replay standard, con l'obiettivo esplicito di contrastare lo sbilanciamento tra traffico benigno e malevolo all'interno della memoria storica.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.85\textwidth]{UltimoRisultatoAdam.png}
+\caption{Andamento dell'accuratezza corrente e sul test ``prova del 9'' dopo l'introduzione dell'ottimizzatore Adam e del \texttt{BalancedExemplarsBuffer} (\texttt{VersioneConAdam.py}), rispetto alla precedente configurazione basata su SGD e buffer di replay non bilanciato.}
+\label{fig:ultimo_adam}
+\end{figure}
+
+È inoltre in \texttt{VersioneConAdam.py} che compare, sotto forma di codice temporaneamente disattivato, il primo tentativo di filtro esplicito delle etichette incoerenti (campioni con descrizione testuale ``normal'' ma etichetta numerica di attacco), poi ripreso e formalizzato negli script di indagine descritti nella Sezione 5.4:
+
+\begin{lstlisting}[caption={Filtro (disattivato) delle etichette incoerenti, primo tentativo (\texttt{VersioneConAdam.py})}]
+# Rimuoviamo le righe dove la descrizione e' 'normal' ma il target e' 1 (errore del dataset)
+# filtro_errore = (df_day['class1'].astype(str).str.contains('normal', case=False, na=False)) & (df_day['class3'] == 1)
+# df_day = df_day[~filtro_errore].copy()
+\end{lstlisting}
+
+In parallelo a questo filone, lo script \texttt{ACDBconDeltaFunction.py} ha esplorato una strategia di feature engineering alternativa all'entity embedding, calcolando per ciascuna feature continua la differenza rispetto al valore osservato nel record precedente (\emph{delta}), nel tentativo di fornire al modello un segnale esplicito di variazione temporale, e concatenando tali delta alle feature originali:
+
+\begin{lstlisting}[caption={Calcolo delle feature differenziali (\texttt{ACDBconDeltaFunction.py})}]
+if last_row_df is not None:
+    combined = pd.concat([last_row_df, features_df])
+    deltas = combined.diff().iloc[1:]
+else:
+    deltas = features_df.diff().fillna(0)
+
+last_row_df = features_df.iloc[[-1]]
+X_combined = pd.concat([features_df, deltas], axis=1).values.astype('float32')
+\end{lstlisting}
+
+Questo approccio, pur concettualmente interessante, raddoppia la dimensionalità dello spazio di input e introduce una dipendenza dall'ultimo record del chunk precedente che complica la gestione dello stato tra chunk successivi; non è stato adottato nella pipeline finale, in cui si è preferita la soluzione dell'entity embedding sulle porte di rete, ritenuta più mirata rispetto al problema specifico della dominanza della feature di porta identificato nel Capitolo 3.
+
+L'introduzione dell'entity embedding compare per la prima volta nello script \texttt{ACDBconEntityEmbedding.py}, applicato al dataset intermedio bilanciato (\texttt{balanced\_dataset\_500K\_400K\_100K.csv}), la cui denominazione riflette la composizione del dataset in 500.000 campioni benigni, 400.000 e 100.000 campioni relativi a due categorie di traffico malevolo. La classe \texttt{EmbeddingMLP} definita in questo script è concettualmente identica a quella descritta nella Sezione 4.2.1 ed è stata successivamente adattata, senza modifiche architetturali sostanziali, allo schema di feature del dataset X-IIoTID nello script finale \texttt{validazioneACDBconEmbedding.py}.
+
+Un ulteriore filone sperimentale, documentato dallo script \texttt{ACDBdatasetARFF.py}, ha applicato lo stesso impianto metodologico (modello \texttt{DeepMLP}, strategia Replay) a una collezione di file in formato ARFF relativi a scenari di attacco multiclasse, confermando la generalità della pipeline di addestramento rispetto al formato specifico del dataset sorgente, purché ricondotto a una rappresentazione tabellare numerica coerente.
+
+Infine, la persistenza del modello per l'uso in inferenza, descritta nella Sezione 4.2.6, era già presente in forma preliminare nello script \texttt{ACDBsalvaModello.py}, e il relativo consumo in fase di inferenza era realizzato da un primo script, \texttt{scriptInferenza.py}, concettualmente predecessore di \texttt{ACDBliveScript.py} (Sezione 4.3): tale versione preliminare non prevedeva ancora l'acquisizione tramite Scapy, ma operava per filtraggio automatico delle colonne attese (\texttt{colonne\_per\_modello}, anch'essa serializzata tramite \texttt{joblib}) a partire da un DataFrame già disponibile in memoria, secondo lo schema seguente:
+
+\begin{lstlisting}[caption={Predecessore della pipeline di inferenza live (\texttt{scriptInferenza.py})}]
+scaler = joblib.load('scaler_cyber.pkl')
+colonne_per_modello = joblib.load('colonne_modello.pkl')
+
+model = DeepMLP(input_size=len(colonne_per_modello))
+model.load_state_dict(torch.load('modello_cyber_final.pth'))
+model.eval()
+
+def rileva_attacco_live(nuovi_dati_df):
+    X_raw = nuovi_dati_df[colonne_per_modello].fillna(0).values
+    X_scaled = scaler.transform(X_raw)
+    X_tensor = torch.from_numpy(X_scaled.astype('float32'))
+\end{lstlisting}
+
+Il confronto tra questa versione preliminare e la pipeline finale descritta nella Sezione 4.3 evidenzia il salto qualitativo più rilevante compiuto nell'ultima iterazione del lavoro: il passaggio da un'inferenza su dati già strutturati in formato tabellare a un'inferenza realmente \emph{live}, che ricostruisce la struttura tabellare stessa a partire dai pacchetti di rete grezzi tramite il meccanismo di aggregazione a flussi descritto nella Sezione 4.3.1.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.85\textwidth]{utlimoRisultatoModificaACDB.png}
+\caption{Risultati della configurazione \texttt{DeepMLP} potenziata (famiglia di script \texttt{modifcheACDB.py}/\texttt{ACDBsalvaModello.py}/\texttt{AdamConDatasetBalanced.py}) sul dataset bilanciato intermedio, tappa intermedia tra la versione a singolo strato e l'architettura \texttt{EmbeddingMLP} finale.}
+\label{fig:modifica_acdb}
+\end{figure}
+
+\section{Ottimizzazione degli iperparametri tramite Grid Search}
+
+A complemento delle sperimentazioni manuali descritte nella sezione precedente, è stata condotta una ricerca sistematica degli iperparametri (\emph{grid search}) tramite lo script \texttt{GridValidation.py}, applicata al dataset intermedio bilanciato \texttt{balanced\_dataset\_500K\_400K\_100K.csv} con il modello \texttt{DeepMLP}. La griglia esplorata copre tre iperparametri ritenuti maggiormente critici sulla base delle osservazioni discusse nella Sezione 5.3: la dimensione della memoria di replay (\texttt{mem\_size} $\in \{2000, 4000, 6000\}$), il numero di epoche di addestramento per ciascun giorno simulato (\texttt{train\_epochs} $\in \{5, 10, 15\}$) e il peso relativo assegnato alla classe di attacco nella funzione di costo (\texttt{atk\_weight} $\in \{1.0, 4.0, 6.0\}$), per un totale di 27 configurazioni, ciascuna valutata su 500 giorni simulati:
+
+\begin{lstlisting}[caption={Griglia di iperparametri esplorata (\texttt{GridValidation.py})}]
+param_grid = {
+    'mem_size': [2000, 4000, 6000],
+    'train_epochs': [5, 10, 15],
+    'atk_weight': [1.0, 4.0, 6.0]
+}
+all_params = [dict(zip(param_grid.keys(), v)) for v in itertools.product(*param_grid.values())]
+\end{lstlisting}
+
+È particolarmente significativo, dal punto di vista del metodo di lavoro adottato, che lo script stesso documenti esplicitamente, tramite commenti, una serie di correzioni (\emph{bug fix}) individuate nel corso della sperimentazione. In particolare, si segnala la scoperta di un difetto legato alla natura \emph{stateful} dell'\texttt{EvaluationPlugin} di Avalanche: la condivisione di una singola istanza del plugin tra configurazioni distinte della grid search corrompeva lo stato interno (contatori e riferimenti alle esperienze) a partire dalla seconda configurazione testata, inducendo il modello a collassare nella predizione sistematica della sola classe maggioritaria. La correzione, qui riportata, consiste nella creazione di una nuova istanza del plugin di valutazione a ogni iterazione della griglia:
+
+\begin{lstlisting}[caption={Correzione della condivisione errata dell'EvaluationPlugin tra configurazioni (\texttt{GridValidation.py})}]
+# BUG FIX 1: EvaluationPlugin creato DENTRO il loop, uno per configurazione.
+# Il plugin e' STATEFUL (traccia clock interni e contatori delle experience).
+# Condividerlo tra strategie diverse corrompeva lo stato dalla seconda
+# configurazione in poi, causando il collasso a predire sempre classe 0.
+evaluator = EvaluationPlugin(
+    accuracy_metrics(experience=True, stream=True),
+    loggers=[]
+)
+\end{lstlisting}
+
+Un secondo intervento correttivo, altrettanto istruttivo, ha riguardato l'intervallo di variazione del peso della classe di attacco: un valore massimo di 1.5, testato in una prima versione della griglia, risultava insufficiente a contrastare uno sbilanciamento di classe di rapporto 4:1 tipico del dataset intermedio (500.000 campioni benigni contro 500.000 complessivi di due categorie di attacco), inducendo il modello a raggiungere un'accuratezza illusoria di circa il 75\% limitandosi a predire sistematicamente la classe benigna. L'intervallo è stato pertanto esteso fino a un peso di 6.0.
+
+Al termine della grid search, lo script \texttt{analizzaGridSearch.py} aggrega i risultati per configurazione e calcola, per ciascuna combinazione di iperparametri, un punteggio composito che bilancia tre esigenze contrapposte: un'elevata accuratezza media sul test set puro, una bassa variabilità nel tempo (proxy di stabilità) e un contenuto divario tra la sensibilità sulle due classi:
+
+\begin{lstlisting}[caption={Formula del punteggio composito per la classifica delle configurazioni (\texttt{analizzaGridSearch.py})}]
+agg_configs['Score'] = agg_configs['Acc_Media'] - (agg_configs['Acc_Std'] * 2) - (agg_configs['Gap_Medio(%)'] / 100)
+\end{lstlisting}
+
+La penalizzazione della deviazione standard con un peso doppio rispetto al suo valore assoluto riflette la scelta metodologica, coerente con quanto discusso nella Sezione 4.4, di privilegiare configurazioni stabili nel tempo rispetto a configurazioni che raggiungono un'accuratezza media elevata ma soggetta a forti oscillazioni, un compromesso ritenuto più adeguato a un sistema di monitoraggio destinato a un utilizzo operativo continuativo. I risultati aggregati della grid search, riassunti graficamente nelle dashboard prodotte a valle dell'analisi, sono stati utilizzati per orientare la scelta finale dei parametri della memoria di replay e del bilanciamento delle classi adottati nella configurazione conclusiva descritta nella Sezione 4.2.4.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.85\textwidth]{dashboard_grid_vincitrice_completa.png}
+\caption{Dashboard della configurazione classificata come ``vincitrice'' da una prima versione dello scoring, precedente alla correzione del range del peso della classe di attacco (\texttt{atk\_weight=0.5}, memoria di replay 2000, 5 epoche). Nonostante un'accuratezza sul test puro stabile intorno al 50\% e un gap di recall riportato al 100\%, la matrice di confusione dell'ultimo giorno (TN: 509, FP: 0, FN: 491, TP: 0) rivela un comportamento completamente degenere: il modello classifica sistematicamente ogni campione come traffico benigno, non rilevando alcun attacco.}
+\label{fig:grid_vincitrice}
+\end{figure}
+
+Questo risultato, apparentemente paradossale rispetto alla denominazione ``vincitrice'' attribuita dalla formula di punteggio, è in realtà pienamente coerente con il difetto descritto nella Sezione 4.7 circa l'intervallo insufficiente del peso della classe di attacco: una formula di scoring basata unicamente su accuratezza e stabilità, in assenza di un vincolo esplicito sulla recall della classe minoritaria, può premiare un modello che ignora sistematicamente la classe di interesse mantenendo un'accuratezza apparentemente accettabile, un rischio ben noto nella valutazione di classificatori su dataset sbilanciati e che ha motivato l'estensione della griglia fino a un peso di 6.0 discussa nella Sezione 4.7.
+
+% =====================================================================
+\chapter{Sperimentazione e Risultati}
+% =====================================================================
+
+\section{Setup sperimentale}
+
+La sperimentazione finale, i cui risultati sono discussi in questo capitolo, è stata condotta con la configurazione descritta nella Sezione 4.2.3: dataset X-IIoTID, letto a blocchi di 1000 righe per ``giorno'' simulato, per un massimo di 1000 giorni, con un insieme di test puro di 3000 campioni estratti dal primo chunk e mai utilizzato in addestramento, e una memoria di replay di 6000 esempi. Alcune fasi intermedie della sperimentazione, discusse nelle sezioni seguenti a fini di analisi critica del processo di progettazione, sono state condotte con parametri differenti (in particolare con simulazioni estese fino a 2000 giorni e con diverse dimensioni della memoria di replay), come esplicitamente indicato nel testo.
+
+\section{Evoluzione iterativa della sperimentazione}
+
+Il sistema descritto nel Capitolo 4 costituisce l'esito di un processo di raffinamento iterativo, i cui passaggi principali sono qui riassunti in quanto rilevanti per la comprensione critica dei risultati finali.
+
+Una prima versione del sistema, basata su un classificatore Random Forest addestrato su un dataset di traffico grezzo, ha mostrato un evidente fenomeno combinato di overfitting e catastrophic forgetting, imputabile sia alla natura del dataset sia a una gestione non adeguata dei pesi delle classi rispetto alla quantità di traffico malevolo presente. Il passaggio a un dataset in formato ARFF, con notazione esplicita dei comandi Modbus, ha richiesto una revisione della logica di addestramento, senza tuttavia risolvere strutturalmente il problema, che è stato affrontato mediante l'introduzione delle tecniche di feature engineering descritte nel Capitolo 3 (encoding delle variabili categoriche, allineamento delle colonne, trasformazione della feature temporale).
+
+Il passaggio successivo, motivato dalla necessità di un apprendimento realmente incrementale -- difficilmente ottenibile con la libreria Keras/TensorFlow inizialmente utilizzata per la rete neurale -- ha comportato la riscrittura del modello in PyTorch e l'adozione del framework Avalanche, con l'introduzione delle tre componenti fondamentali descritte nel Capitolo 2: un benchmark che trasforma i chunk di dati in tensori PyTorch, una rete neurale MLP, e una strategia di Continual Learning. Le prime versioni del modello, di tipo \texttt{SingleMLP}, articolate su un singolo strato nascosto, hanno mostrato una capacità di generalizzazione insufficiente all'aumentare del numero di giorni simulati (si veda la Sezione 5.3), motivando l'evoluzione verso l'architettura \texttt{EmbeddingMLP} descritta nel Capitolo 4, dotata di due strati nascosti (1024 e 512 neuroni), Batch Normalization e Dropout, e della gestione dedicata delle porte di rete tramite entity embedding.
+
+\section{Risultati della strategia Replay su orizzonti temporali crescenti}
+
+Un primo risultato significativo è stato ottenuto simulando l'addestramento incrementale su un orizzonte di 199 giorni, riservando il primo giorno di dati -- mai sottoposto al modello in fase di addestramento -- come ulteriore verifica indipendente della capacità di generalizzazione. Il modello ha raggiunto un'accuratezza del 100\% sul test set, con una lieve oscillazione osservata tra il giorno 10 e il giorno 15, attribuibile a imprecisioni nel dataset. È rilevante osservare che la curva di accuratezza calcolata sul primo giorno di dati (mai osservato in addestramento) mostra un andamento coerente con l'assenza di overfitting: il modello è in grado di riconoscere correttamente attacchi su dati mai osservati, a conferma che l'elevata accuratezza raggiunta non sia mero effetto di memorizzazione.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.85\textwidth]{grafico_finale_100gg.png}
+\caption{Andamento dell'accuratezza media e della loss media lungo una simulazione di 100 giorni (dati corrispondenti a \texttt{risultati\_100\_giorni.csv}), a conferma della rapida convergenza del modello e dell'assenza di derive significative su un orizzonte temporale contenuto.}
+\label{fig:100gg}
+\end{figure}
+
+Un confronto interessante emerso in questa fase riguarda l'effetto della rimozione della feature \texttt{Scr\_port}: nella configurazione priva di tale feature, il modello raggiunge un'accuratezza del 100\% con una loss dello 0.222\%, con la particolarità che la convergenza al 100\% di accuratezza avviene più precocemente (attorno al giorno 85--90) rispetto alla configurazione che include la porta sorgente (convergenza attorno al giorno 100). Questo risultato è stato interpretato come evidenza che la rimozione di una feature ``rumorosa'' o eccessivamente specifica, quale il numero di porta, favorisca un apprendimento più rapido dei pattern generali del traffico, anziché indurre il modello ad attendere il riconoscimento di uno specifico numero di porta.
+
+Nell'estensione della simulazione a 2000 giorni, con una memoria di replay di soli 200 esempi, il modello ha mostrato una netta difficoltà a mantenere un'accuratezza superiore al 90\% nel riconoscimento degli attacchi, comportamento attribuito a un dimensionamento insufficiente del buffer di memoria rispetto all'orizzonte temporale simulato. L'incremento della memoria a 2000 esempi ha prodotto un fenomeno diverso ma altrettanto critico: l'accuratezza sui dati correnti si è stabilizzata al 100\%, mentre l'accuratezza sul test puro si è attestata stabilmente attorno al 90\%, con una loss sui dati correnti pari a 0.0058 contro una loss sul test esterno pari a 0.2949. Tale divario tra le due metriche di loss, ben più informativo del solo confronto tra le accuratezze, è stato interpretato come sintomo di un modello che ha sovrascritto la propria logica interna per adattarsi perfettamente all'istante corrente, perdendo la capacità di generalizzare -- un caso di overfitting che una lettura superficiale della sola accuratezza (90\%) avrebbe potuto erroneamente attribuire a fortuna statistica o allo sbilanciamento del dataset.
+
+Il successivo tentativo di correzione, tramite la riduzione del \emph{learning rate} da $10^{-3}$ a $10^{-4}$, ha invece prodotto il fenomeno opposto, ovvero underfitting: il test sui dati mai osservati ha raggiunto un'accuratezza dell'87\%, contro una media del 99\% sui dati di training, con picchi di loss prossimi al 40\%. Questo risultato ha motivato la revisione strutturale dell'architettura descritta nella Sezione 4.2.1, con l'introduzione di un ulteriore strato nascosto e l'adozione di un buffer bilanciato (\texttt{BalancedExemplarsBuffer}), pensato per contrastare lo sbilanciamento tra traffico benigno e malevolo all'interno del buffer di replay stesso.
+
+Un'ulteriore osservazione critica, emersa nel corso della sperimentazione a 2000 giorni, riguarda un drop di accuratezza fino a un minimo di circa il 50\% intorno al giorno 45, accompagnato da un appiattimento della curva relativa al test puro e da forti fluttuazioni verso la fine della simulazione. Al fine di distinguere se tale comportamento fosse dovuto a un episodio di catastrophic forgetting o a un esaurimento anticipato dei dati malevoli disponibili, è stato condotto un conteggio esplicito delle righe disponibili nei due file sorgente (benigno e malevolo), che ha evidenziato una marcata sproporzione tra le due classi (circa 29,3 milioni di righe benigne contro circa 3,5 milioni di righe malevole), sufficiente in termini assoluti a sostenere la simulazione richiesta ma indicativa di una scarsa varianza interna al file di traffico malevolo. Questa osservazione ha motivato l'adozione, nelle iterazioni successive, di un dataset con maggiore varianza intrinseca tra le classi.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.85\textwidth]{andamento_temporale.png}
+\caption{Andamento temporale delle metriche di accuratezza sull'orizzonte esteso di simulazione, con evidenza del drop intorno al giorno 45 discusso nel testo e del successivo recupero parziale delle prestazioni.}
+\label{fig:andamento_temporale}
+\end{figure}
+
+\section{Risultati finali e resilienza al concept drift}
+
+La configurazione finale del sistema, corrispondente allo script \texttt{validazioneACDBconEmbedding.py} descritto nel Capitolo 4, ha raggiunto un'accuratezza finale del \textbf{99.99\%} con una loss dello 0.137\%. Un aspetto qualificante del risultato riguarda l'andamento della curva di accuratezza nel tempo, che presenta un crollo localizzato attorno al giorno 60 -- attribuibile alla comparsa di un nuovo tipo di attacco, mai osservato in precedenza -- seguito da un recupero progressivo, durante il quale il modello apprende a riconoscere correttamente il nuovo pattern. Tale comportamento è coerente con il funzionamento atteso di un sistema di Continual Learning ben calibrato: una transitoria riduzione di accuratezza in corrispondenza dell'introduzione di un concetto nuovo, seguita da un adattamento senza perdita della conoscenza pregressa.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.85\textwidth]{Ultimo_risultatoDelta.png}
+\caption{Dashboard finale prodotta da \texttt{visualizza\_risultati.py}: confronto tra accuratezza corrente e accuratezza sul test ``prova del 9'' (pannello superiore) e analisi della sensibilità nel tempo tramite recall su attacchi e traffico benigno (pannello inferiore), sull'intera run di validazione con il modello \texttt{EmbeddingMLP} finale.}
+\label{fig:ultimo_delta}
+\end{figure}
+
+Un secondo episodio, particolarmente significativo ai fini della validazione della strategia Replay, è stato osservato tra il giorno 55 e il giorno 75, periodo durante il quale il dataset di input presentava una corruzione delle etichette: circa 220.000 campioni erano descritti testualmente come ``Normal'' mentre risultavano etichettati numericamente come attacco (\texttt{class3 = 1}). Tale incoerenza ha determinato un calo temporaneo di accuratezza, interpretabile come un caso di \emph{concept drift indotto da rumore}: il modello è stato costretto a una fase di ``disapprendimento'' forzato, nel tentativo di mappare pattern di traffico benigno sulla classe malevola. Nonostante la portata dell'errore, il modello non ha mostrato un collasso completo delle prestazioni (l'accuratezza non è scesa a valori prossimi allo zero), grazie al fatto che il buffer di Replay ha continuato a mantenere una traccia dei dati corretti osservati in precedenza, consentendo al sistema di sopravvivere alla fase di rumore e di recuperare un'accuratezza prossima al 99\% non appena la coerenza dei dati è stata ripristinata, dopo il giorno 75. Questo episodio, per quanto non pianificato, costituisce una validazione empirica particolarmente convincente dell'efficacia del meccanismo di Replay Buffer nel mitigare l'apprendimento di informazioni scorrette, ben oltre il caso d'uso originariamente previsto (adattamento a nuovi pattern legittimi).
+
+\subsection*{Metodologia di indagine dell'anomalia}
+
+È utile documentare la metodologia con cui l'anomalia è stata individuata e confermata, poiché rappresenta un esempio rappresentativo dell'approccio diagnostico adottato nel corso del lavoro. A fronte dell'osservazione di un calo anomalo di accuratezza nell'intervallo di giorni indicato, si è proceduto anzitutto a isolare, senza caricare l'intero dataset in memoria, la sola porzione di file corrispondente all'intervallo critico, tramite lettura mirata con gli argomenti \texttt{skiprows} e \texttt{nrows} di \texttt{pandas}:
+
+\begin{lstlisting}[caption={Estrazione mirata delle righe corrispondenti ai giorni critici (\texttt{estrazioneRigheDataset.py})}]
+chunk_size_maligni = 10000
+giorno_inizio = 54  # Giorno 55 (indice parte da 0)
+giorno_fine = 76    # Fino al giorno 75
+
+start_row = giorno_inizio * chunk_size_maligni
+nrows_to_read = (giorno_fine - giorno_inizio) * chunk_size_maligni
+
+df_estratto = pd.read_csv(
+    file_maligno,
+    skiprows=range(1, start_row),
+    nrows=nrows_to_read,
+    low_memory=False
+)
+\end{lstlisting}
+
+Sul sottoinsieme così estratto (salvato in \texttt{check\_giorni\_critici.csv}, il file di 220.000 righe già introdotto nel Capitolo 3 come esempio di struttura del dataset) è stata condotta un'analisi incrociata (\emph{cross-tabulation}) tra l'etichetta testuale descrittiva (\texttt{class2}, ad esempio ``Normal'' o il nome specifico dell'attacco) e l'etichetta numerica utilizzata come target di addestramento (\texttt{class3}):
+
+\begin{lstlisting}[caption={Analisi incrociata tra etichetta testuale e numerica (\texttt{differenzeAttacchi.py})}]
+cross_tab = pd.crosstab(df['class2'], df['class3'])
+
+if 0 in cross_tab.columns and "Normal" in cross_tab.index:
+    count_normal_as_zero = cross_tab.loc["Normal", 0]
+    print(f"Ci sono {count_normal_as_zero} righe marchiate 'Normal' con Target 0.")
+\end{lstlisting}
+
+L'esecuzione di questa analisi ha permesso di quantificare con precisione il numero di record etichettati testualmente come ``Normal'' ma numericamente come attacco, confermando l'ipotesi di una corruzione sistematica delle etichette all'interno del file dei tracciati maligni, anziché un genuino nuovo pattern di attacco. È interessante osservare che un primo tentativo di correzione del problema, precedente a questa indagine sistematica, era già stato abbozzato -- ma non attivato -- nello script \texttt{VersioneConAdam.py}, sotto forma di un filtro esplicito sulle righe con descrizione contenente la stringa ``normal'' e target pari a 1 (si veda la Sezione 4.6). La scelta finale, nella pipeline conclusiva, è stata quella di non applicare alcun filtro correttivo e di lasciare che fosse il meccanismo di Replay Buffer a garantire la resilienza del modello, ritenendo tale approccio più rappresentativo delle condizioni operative reali, in cui un sistema di anomaly detection non può assumere di disporre a priori di un oracolo per la correzione delle etichette in ingresso.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.75\textwidth]{RisultatoFinaleEmbeddingF1Score.png}
+\caption{Andamento dell'F1-Score nel tempo per la configurazione finale del modello \texttt{EmbeddingMLP}, con relativa media mobile: si osserva la transitoria riduzione di stabilità in corrispondenza dell'episodio di corruzione delle etichette (giorni 55--75) e il successivo recupero.}
+\label{fig:f1_finale}
+\end{figure}
+
+\section{Metriche finali di classificazione}
+
+A completamento della sperimentazione, è stato prodotto un classification report riassuntivo, riportato in Tabella~\ref{tab:classreport}, e un'analisi descrittiva della matrice di confusione ottenuta sul test set.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lccc}
+\toprule
+& \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+\midrule
+Accuratezza complessiva & \multicolumn{3}{c}{0.99 (su 12374 campioni)} \\
+Macro avg & 0.99 & 0.99 & 0.99 \\
+Weighted avg & 0.99 & 0.99 & 0.99 \\
+\bottomrule
+\end{tabular}
+\caption{Classification report riassuntivo del modello finale.}
+\label{tab:classreport}
+\end{table}
+
+L'analisi descrittiva della matrice di confusione corrispondente evidenzia: 5302 campioni di traffico benigno correttamente identificati (veri negativi), 6943 attacchi correttamente rilevati (veri positivi), 127 falsi allarmi (traffico benigno erroneamente classificato come attacco) e, in particolare, soltanto 2 attacchi non rilevati (falsi negativi). Quest'ultimo dato è di particolare rilevanza in un contesto di sicurezza industriale, in cui il costo di un falso negativo -- un attacco non rilevato -- è tipicamente molto più elevato del costo di un falso positivo, poiché un attacco non rilevato può tradursi in un danno fisico o operativo all'impianto, mentre un falso allarme comporta unicamente un costo di verifica da parte dell'operatore.
+
+\section{Risultati della Grid Search}
+
+La ricerca sistematica degli iperparametri descritta nella Sezione 4.7 ha fornito indicazioni empiriche a supporto delle scelte progettuali adottate nella configurazione finale del sistema. L'analisi aggregata delle 27 configurazioni testate, condotta tramite il punteggio composito descritto nella Sezione 4.7 (che penalizza sia l'instabilità nel tempo sia lo squilibrio tra la sensibilità sulle due classi), ha confermato che le configurazioni con memoria di replay più ampia (\texttt{mem\_size} pari a 6000) e con un peso della classe di attacco intermedio tendono a collocarsi nelle posizioni più alte della classifica, offrendo il miglior compromesso tra accuratezza media, stabilità e bilanciamento tra le classi: un'indicazione coerente con la scelta, motivata anche dalle osservazioni della Sezione 5.3, di adottare una memoria di replay di 6000 esempi nella configurazione finale descritta nella Sezione 4.2.4.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.85\textwidth]{dashboard_grid_best.png}
+\caption{Classifica delle configurazioni della grid search dopo la correzione del range del peso della classe di attacco (Sezione 4.7): a differenza della configurazione degenere illustrata in Figura~\ref{fig:grid_vincitrice}, le configurazioni con \texttt{atk\_weight} $\in \{4.0, 6.0\}$ e memoria di replay più ampia mostrano una recall sugli attacchi effettivamente non nulla, a fronte di una riduzione contenuta dell'accuratezza media.}
+\label{fig:grid_best}
+\end{figure}
+
+Le configurazioni con peso della classe di attacco pari a 1.0 (nessuna correzione dello sbilanciamento) sono risultate sistematicamente tra le peggiori della classifica, confermando quanto emerso nel bug fix descritto nella Sezione 4.7 circa la necessità di un peso significativamente maggiore per la classe minoritaria e riproducendo, seppur in forma meno estrema, lo stesso comportamento degenere già osservato in Figura~\ref{fig:grid_vincitrice} per la prima versione dello scoring. Le configurazioni con un numero di epoche per giorno pari a 5 hanno inoltre mostrato, a parità di altri parametri, una minore tendenza all'overfitting sui singoli chunk rispetto alle configurazioni con 15 epoche, coerentemente con l'osservazione, discussa nella Sezione 5.7, del rischio di memorizzazione dei dati più recenti a fronte di un numero eccessivo di iterazioni di addestramento per singolo giorno simulato.
+
+\section{Discussione critica}
+
+I risultati sperimentali complessivi confermano l'efficacia dell'approccio di Continual Learning basato su Experience Replay per il problema dell'anomaly detection in ambito IIoT, con un'accuratezza sostenuta prossima al 99\% e una comprovata resilienza a episodi di rumore nei dati di input. Tuttavia, il percorso sperimentale ha messo in luce alcuni limiti che meritano una discussione esplicita.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.85\textwidth]{dashboard_confronto_scientifico.png}
+\caption{Quadro comparativo delle principali configurazioni sperimentate nel corso del lavoro (dataset, architettura, meccanismo anti-forgetting), a supporto della discussione critica riportata in questa sezione.}
+\label{fig:confronto_scientifico}
+\end{figure}
+
+In primo luogo, la dominanza della feature relativa alla porta sorgente (\texttt{Scr\_port}), emersa sistematicamente nelle analisi di importanza delle feature riportate nel Capitolo 3, rappresenta un rischio di sovra-specializzazione del modello su pattern di traffico specifici, come confermato indirettamente dal miglior comportamento osservato in sua assenza (Sezione 5.3). Tale osservazione suggerisce che, sebbene l'entity embedding costituisca una soluzione tecnicamente più appropriata rispetto alla normalizzazione diretta del numero di porta, la feature resta comunque un elemento che il modello tende a sfruttare in modo predominante, meritando un approfondimento futuro (ad esempio tramite tecniche di regolarizzazione mirate o di analisi di sensibilità).
+
+In secondo luogo, l'osservazione di un'accuratezza del 100\% con loss praticamente nulla in corrispondenza di orizzonti di simulazione estesi (1000 giorni) e memorie di replay dimensionate in modo non ottimale ha sollevato il sospetto di un fenomeno di memorizzazione dei dati (\emph{data memorization}) piuttosto che di un reale apprendimento generalizzante, un rischio metodologicamente distinto dal catastrophic forgetting ma altrettanto rilevante per la validità dei risultati. La mitigazione di tale rischio, nella pipeline finale, è affidata al meccanismo del test set puro descritto nella Sezione 4.2.3, che tuttavia costituisce un controllo necessario ma non sufficiente, e la cui robustezza dipende dalla rappresentatività del campione estratto dal primo chunk di dati.
+
+Infine, la pipeline di inferenza live descritta nella Sezione 4.3, pur garantendo coerenza strutturale con lo schema di feature del dataset di addestramento, presenta il limite intrinseco di non poter valorizzare le feature derivate da fonti diverse dal traffico di rete (in particolare gli indicatori di alert e di autenticazione a livello host), che nella pipeline live sono necessariamente impostati a un valore di default. Tale scelta, per quanto necessaria in assenza di un'integrazione con sistemi di monitoraggio host esterni, introduce un disallineamento tra la distribuzione delle feature osservata in fase di addestramento e quella osservata in fase di inferenza live, il cui impatto quantitativo sulle prestazioni del sistema in un contesto di acquisizione realmente live non è stato oggetto di validazione sperimentale diretta nel presente lavoro.
+
+% =====================================================================
+\chapter{Conclusioni e Sviluppi Futuri}
+% =====================================================================
+
+\section{Sintesi dei risultati raggiunti}
+
+Il presente lavoro ha affrontato la progettazione e l'implementazione di un sistema di anomaly detection per il rilevamento di minacce informatiche in un impianto industriale IIoT, basato su tecniche di Continual Learning, con l'obiettivo di superare i limiti intrinseci dei modelli di Machine Learning addestrati staticamente in un contesto caratterizzato da concept drift.
+
+Sono stati conseguiti tutti gli obiettivi definiti in apertura del lavoro: è stata condotta un'analisi della letteratura relativa alle principali strategie di Continual Learning, con particolare attenzione agli approcci basati su regolarizzazione e su replay, ed è stata effettuata una selezione motivata della strategia \emph{Replay}, implementata tramite il framework Avalanche; è stato analizzato il dataset industriale disponibile, con un processo strutturato di feature engineering e di selezione delle feature basato su Random Forest, che ha permesso di identificare e rimuovere feature ridondanti o rumorose; è stata implementata una pipeline completa per l'acquisizione in tempo reale del traffico di rete tramite Scapy, con un meccanismo di aggregazione a flussi progettato per garantire piena coerenza con lo schema di feature del modello addestrato; sono state infine analizzate in dettaglio le prestazioni del sistema, con un'accuratezza finale prossima al 99.99\% e una dimostrata capacità di resilienza a un episodio non pianificato di corruzione delle etichette nel dataset di input, a conferma dell'efficacia pratica del meccanismo di Replay Buffer adottato.
+
+\section{Limiti del sistema realizzato}
+
+Il sistema realizzato presenta alcuni limiti, discussi criticamente nella Sezione 5.6, che è opportuno riepilogare in questa sede conclusiva: la dipendenza, forse eccessiva, del modello dalla feature relativa alla porta di rete sorgente; la difficoltà di distinguere in modo del tutto inequivocabile, sulla sola base della curva di accuratezza, tra un genuino apprendimento generalizzante e un fenomeno di memorizzazione dei dati più recenti, specialmente su orizzonti di simulazione estesi; e il disallineamento strutturale, nella pipeline di inferenza live, tra le feature effettivamente calcolabili a partire dalla sola osservazione del traffico di rete e l'insieme completo delle feature utilizzate in fase di addestramento.
+
+\section{Sviluppi futuri}
+
+Diverse direzioni di sviluppo futuro emergono naturalmente dal lavoro svolto e dagli spunti presenti nella letteratura analizzata nel Capitolo 2. Una prima direzione riguarda l'integrazione, accanto alla strategia di Replay attualmente adottata, di meccanismi di regolarizzazione ispirati all'Elastic Weight Consolidation, in una strategia ibrida che combini la stabilità garantita dalla penalizzazione dei parametri più importanti con la flessibilità del rehearsal basato su memoria. Una seconda direzione, suggerita dalla letteratura relativa agli approcci di \emph{Hint-Based Learning}, riguarda l'introduzione di rappresentazioni intermedie (\emph{hint}) come meccanismo aggiuntivo per preservare la conoscenza pregressa, in particolare tramite un design a doppio buffer che distingua la memoria dedicata alla prevenzione del catastrophic forgetting da una memoria ``soft'' dedicata al rafforzamento delle prestazioni sul task corrente.
+
+Sul piano più propriamente sperimentale, un naturale proseguimento del lavoro consiste nella validazione del sistema su un'acquisizione realmente live dall'impianto Fischertechnik, anziché sulla simulazione a partire da un dataset statico suddiviso in chunk, così da poter quantificare l'impatto concreto del disallineamento delle feature discusso nella Sezione 5.6 e da poter validare l'intera pipeline, incluso il modulo di acquisizione descritto nella Sezione 4.3, in condizioni operative reali. È inoltre prevista, come indicato nelle note di progetto, un'ulteriore validazione finale su un dataset ufficiale di riferimento (X-IIoTID), utile a consolidare la generalizzabilità dei risultati ottenuti. Infine, l'inserimento del sistema all'interno di un'infrastruttura di tipo Digital Twin/Cyber Range -- comprendente repliche virtuali containerizzate integrate con componenti hardware-in-the-loop, quali quelle basate su piattaforme Jetson Nano già impiegate in lavori correlati -- rappresenterebbe un naturale banco di prova per la validazione del sistema in scenari di attacco realistici e su scala più ampia rispetto all'impianto didattico utilizzato nel presente lavoro.
+
 \end{document}
